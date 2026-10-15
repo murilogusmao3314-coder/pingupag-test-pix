@@ -1,0 +1,494 @@
+{
+  "source": {
+    "note": "Extracted from original-checkout.js and original-funnel.js (monster.primewall.online capture). Read-only reference extraction; bundles not executed.",
+    "caveats": [
+      "Scripts are minified JSX (React.createElement calls transpiled); all strings below reproduced exactly as found in template literals.",
+      "Image filenames are relative to asset base path `/copo-quiz/assets` (constant `_`/`g`/`x` in source).",
+      "Icons for some quiz options are inline SVGs (named icon keys, not image files) — see 'icon_key' field instead of image filename when no img provided.",
+      "Testimonial and FAQ sections render AFTER the quiz result ('premio') screen, per README.txt instructions.",
+      "Checkout copy also includes two order-bump upsells and shipping options not explicitly requested but included for completeness.",
+      "CNPJ and company legal name reproduced exactly as in source footer; verify before reuse in production content."
+    ]
+  },
+  "quiz_questions": [
+    {
+      "index": 1,
+      "key": "ROTINA",
+      "kind": "duo",
+      "question": "Sua bebida esquenta antes de você terminar?",
+      "options": [
+        {
+          "text": "Sim, sempre",
+          "subtitle": "no fim já está morna",
+          "icon_key": "sim",
+          "tone": "ok"
+        },
+        {
+          "text": "Não",
+          "subtitle": "eu bebo rápido",
+          "icon_key": "nao",
+          "tone": "no"
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "key": "DIA A DIA",
+      "kind": "arte",
+      "question": "Onde o copo ia te salvar mais?",
+      "options": [
+        {
+          "text": "Na academia",
+          "icon_key": "halter"
+        },
+        {
+          "text": "No trabalho",
+          "icon_key": "mesa"
+        },
+        {
+          "text": "No carro",
+          "icon_key": "carro"
+        },
+        {
+          "text": "Na faculdade",
+          "icon_key": "mochila"
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "key": "CONSUMO",
+      "kind": "sabor",
+      "question": "Quantas latas você toma por semana?",
+      "options": [
+        {
+          "text": "1 a 2",
+          "image": "latas-1.png"
+        },
+        {
+          "text": "3 a 5",
+          "image": "latas-2.png"
+        },
+        {
+          "text": "6 a 10",
+          "image": "latas-3.png"
+        },
+        {
+          "text": "Mais de 10",
+          "image": "latas-4.png"
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "key": "SABOR",
+      "kind": "sabor",
+      "question": "Qual é o seu sabor favorito?",
+      "options": [
+        {
+          "text": "Original",
+          "image": "lata-original.png"
+        },
+        {
+          "text": "Mango Loco",
+          "image": "lata-mango.png"
+        },
+        {
+          "text": "Ultra",
+          "image": "lata-ultra.png"
+        },
+        {
+          "text": "Pacific Punch",
+          "image": "lata-pacific.png"
+        }
+      ]
+    },
+    {
+      "index": 5,
+      "key": "HOJE",
+      "kind": "arte",
+      "question": "Quanto tempo o gelo dura no copo que você usa hoje?",
+      "options": [
+        {
+          "text": "Menos de 1 hora",
+          "icon_key": "gota"
+        },
+        {
+          "text": "Uma manhã",
+          "icon_key": "relogio"
+        },
+        {
+          "text": "O dia todo",
+          "icon_key": "sol"
+        },
+        {
+          "text": "Não uso copo térmico",
+          "icon_key": "proibido"
+        }
+      ]
+    },
+    {
+      "index": 6,
+      "key": "O PRÊMIO",
+      "kind": "grid",
+      "question": "Qual detalhe do copo te ganhou?",
+      "options": [
+        {
+          "text": "Tampa com canudo",
+          "image": "copo-tampa.png"
+        },
+        {
+          "text": "Inox por dentro",
+          "image": "copo-corte.png"
+        },
+        {
+          "text": "Chaveiro na alça",
+          "image": "copo-alca.png"
+        },
+        {
+          "text": "O copo inteiro",
+          "image": "copo-frente.png"
+        }
+      ]
+    },
+    {
+      "index": 7,
+      "key": "JÁ ACONTECEU",
+      "kind": "duo",
+      "question": "Já vazou bebida dentro da sua mochila?",
+      "options": [
+        {
+          "text": "Já",
+          "subtitle": "mais de uma vez",
+          "icon_key": "sim",
+          "tone": "ok"
+        },
+        {
+          "text": "Nunca",
+          "subtitle": "e não quero começar",
+          "icon_key": "nao",
+          "tone": "no"
+        }
+      ]
+    },
+    {
+      "index": 8,
+      "key": "TAMANHO",
+      "kind": "arte",
+      "question": "Qual tamanho combina com o seu dia?",
+      "options": [
+        {
+          "text": "500 ml",
+          "icon_key": "copoP"
+        },
+        {
+          "text": "1 litro",
+          "icon_key": "copoM"
+        },
+        {
+          "text": "1,15 litro",
+          "icon_key": "copoG"
+        },
+        {
+          "text": "Quanto maior, melhor",
+          "icon_key": "infinito"
+        }
+      ]
+    },
+    {
+      "index": 9,
+      "key": "ÚLTIMA",
+      "kind": "arte",
+      "question": "Com o que você encheria o copo no primeiro dia?",
+      "options": [
+        {
+          "text": "Energético gelado",
+          "icon_key": "cubo"
+        },
+        {
+          "text": "Água com gelo",
+          "icon_key": "gota"
+        },
+        {
+          "text": "Café gelado",
+          "icon_key": "cafe"
+        },
+        {
+          "text": "Suco ou isotônico",
+          "icon_key": "garrafa"
+        }
+      ]
+    }
+  ],
+  "features": [
+    {
+      "image": "copo-corte.png",
+      "alt": "Corte do copo Monster mostrando as camadas da parede",
+      "title": "24 horas de gelo",
+      "description": "Parede dupla a vácuo com blindagem cor de cobre. Enche de manhã, o gelo continua lá à noite."
+    },
+    {
+      "image": "copo-tampa.png",
+      "alt": "Tampa do copo Monster com canudo de aço e trava de silicone",
+      "title": "Tampa que trava",
+      "description": "Canudo de aço removível e trava de silicone. Deita na mochila sem molhar nada."
+    },
+    {
+      "image": "copo-alca.png",
+      "alt": "Alça do copo Monster com chaveiro duplo",
+      "title": "Chaveiro na alça",
+      "description": "Latinha de metal e a garra na corrente escurecida, já presas na alça — não é brinde solto na caixa."
+    },
+    {
+      "image": "copo-aberto.png",
+      "alt": "Copo térmico Monster 1,15L visto de frente",
+      "title": "1,15 litro",
+      "description": "Base de 7 cm que entra no porta-copos do carro e alça pra carregar com uma mão só."
+    }
+  ],
+  "testimonials": [
+    {
+      "image": "rev-beatriz.jpg",
+      "alt": "Beatriz com o copo térmico Monster",
+      "quote": "Fiz o desafio achando que era pegadinha. Chegou em 9 dias, com nota fiscal e tudo. Botei gelo às 7h, às 22h ainda tinha pedra.",
+      "name": "Beatriz M. · Curitiba, PR",
+      "stars": 5
+    },
+    {
+      "image": "rev-rafael.jpg",
+      "alt": "Rafael com o copo térmico Monster",
+      "quote": "Levo pra academia todo dia pendurado no dedo pela alça. O chaveiro da latinha é o detalhe que todo mundo pergunta onde eu comprei.",
+      "name": "Rafael S. · Guarulhos, SP",
+      "stars": 5
+    },
+    {
+      "image": "rev-diegos.jpg",
+      "alt": "Diego com o copo térmico Monster",
+      "quote": "Trabalho na rua o dia inteiro. Encho de água gelada às 6h e às 18h ainda está gelada. E cabe no porta-copos da caminhonete.",
+      "name": "Diego A. · Belo Horizonte, MG",
+      "stars": 5
+    }
+  ],
+  "faqs": [
+    {
+      "question": "O copo é grátis mesmo?",
+      "answer": "É. Quem completa as 9 perguntas libera o copo sem pagar nada pelo produto: R$ 0 por um copo que sai R$ 197 no varejo. O lote do desafio é limitado e cada pessoa leva uma unidade."
+    },
+    {
+      "question": "Por que vocês dão o copo?",
+      "answer": "É um lote promocional pra colocar o copo na mão de quem bebe energético todo dia. Sai mais barato pra gente do que anúncio: quem anda com o copo por aí divulga sozinho."
+    },
+    {
+      "question": "Tem mensalidade ou assinatura?",
+      "answer": "Não. É pagamento único, sem assinatura e sem cobrança recorrente."
+    },
+    {
+      "question": "Em quanto tempo chega?",
+      "answer": "Sai do estoque em até 24 horas úteis. A entrega padrão leva de 7 a 12 dias úteis e a expressa de 2 a 5. O código de rastreio vai pro seu e-mail."
+    },
+    {
+      "question": "Posso resgatar mais de um?",
+      "answer": "O prêmio é um por pessoa. No checkout aparece a opção de levar um segundo copo por um valor simbólico, na mesma caixa."
+    },
+    {
+      "question": "E se eu não gostar?",
+      "answer": "Você tem 30 dias. Se chegar com defeito ou não for o que você esperava, resolvemos na hora e a coleta fica por nossa conta."
+    }
+  ],
+  "final_cta_section": {
+    "section_label": "// Última chamada",
+    "heading_parts": [
+      "Seu copo está",
+      "reservado."
+    ],
+    "subtext": "O produto sai por R$ 0. Você paga apenas a entrega rastreada até a sua casa.",
+    "button": "Resgatar meu copo"
+  },
+  "footer": {
+    "company_name": "Monster Energy Brasil Comércio de Bebidas Ltda.",
+    "cnpj": "CNPJ 10.905.379/0001-32"
+  },
+  "quiz_intro_and_result_copy": {
+    "top_bar_label": "Desafio Monster · Copo 1,15L grátis",
+    "intro_kicker": "O desafio de hoje",
+    "intro_heading_parts": [
+      "Responda tudo",
+      "e ganhe o copo",
+      "grátis"
+    ],
+    "intro_subtext": "9 perguntas rápidas sobre o seu dia. Chegou no fim, o Copo Térmico Monster 1,15L de R$ 197 sai por zero — o copo é seu.",
+    "intro_price_tag": "R$ 0,00",
+    "intro_cta": "Começar o desafio",
+    "intro_facts": [
+      "9 perguntas",
+      "1 minuto",
+      "copo grátis"
+    ],
+    "quiz_footer_note": "Não existe resposta errada — só precisa responder todas.",
+    "quiz_lock_text_plural": "Faltam {n} respostas",
+    "quiz_lock_text_singular": "Falta 1 resposta",
+    "analise_kicker": "Conferindo",
+    "analise_heading_parts": [
+      "Validando",
+      "suas respostas"
+    ],
+    "analise_steps": [
+      "Conferindo suas 9 respostas",
+      "Checando estoque na sua região",
+      "Liberando o prêmio no seu nome"
+    ],
+    "premio_badge": "Desafio completo",
+    "premio_heading_parts": [
+      "Você ganhou",
+      "o Copo Monster",
+      "grátis"
+    ],
+    "premio_price_was": "R$ 197",
+    "premio_price_now": "R$ 0",
+    "premio_product_name": "Copo Térmico Monster 1,15L",
+    "premio_product_subtitle": "aço inox de parede dupla + chaveiro duplo",
+    "premio_mini_specs": [
+      {
+        "value": "24h",
+        "label": "de gelo"
+      },
+      {
+        "value": "1,15L",
+        "label": "de capacidade"
+      },
+      {
+        "value": "Aço",
+        "label": "inox a vácuo"
+      }
+    ],
+    "premio_reserved_label": "Reservado no seu nome por",
+    "premio_cta": "Resgatar meu copo"
+  },
+  "checkout": {
+    "brand_label": "Monster Drinkware",
+    "secure_label": "Ambiente seguro",
+    "steps_nav": [
+      "Seus dados",
+      "Entrega",
+      "Pagamento"
+    ],
+    "step1_data": {
+      "heading_parts": [
+        "Seus dados",
+        "de resgate"
+      ],
+      "subtext": "Seu copo foi liberado por R$ 0 — complete os dados para seguir.",
+      "fields": [
+        {
+          "label": "Nome completo",
+          "placeholder": "Como está no documento"
+        },
+        {
+          "label": "E-mail",
+          "placeholder": "para receber o rastreio"
+        },
+        {
+          "label": "CPF",
+          "placeholder": "000.000.000-00"
+        },
+        {
+          "label": "Celular",
+          "placeholder": "(00) 00000-0000"
+        }
+      ],
+      "validation_messages": [
+        "Digite seu nome completo.",
+        "Digite um e-mail válido.",
+        "Digite um CPF válido (11 dígitos).",
+        "Digite um celular com DDD."
+      ]
+    },
+    "step2_shipping": {
+      "heading_parts": [
+        "Onde entregar",
+        "o seu copo"
+      ],
+      "section_kicker": "Escolha sua entrega",
+      "note": "O prêmio é grátis, você paga somente a entrega. Todos os envios seguem em caixa reforçada, com proteção contra avarias e código de rastreamento.",
+      "options": [
+        {
+          "id": "pac",
+          "name": "Entrega padrão · PAC",
+          "eta": "7 a 12 dias úteis · com rastreio",
+          "cost": 9.9,
+          "was": 18.9
+        },
+        {
+          "id": "sedex",
+          "name": "Expresso · SEDEX",
+          "eta": "2 a 5 dias úteis · com rastreio",
+          "eta_dynamic_note": "Previsão: chega AMANHÃ, {data} · com rastreio",
+          "cost": 18.94
+        }
+      ],
+      "address_section_kicker": "Endereço de entrega",
+      "validation_messages": [
+        "Digite um CEP válido.",
+        "Digite o endereço.",
+        "Digite o número.",
+        "Digite o bairro.",
+        "Digite a cidade.",
+        "Digite o estado (UF)."
+      ]
+    },
+    "order_bumps": [
+      {
+        "image": "copo-frente.png",
+        "title": "Leva +1 copo Monster",
+        "description": "Vai na mesma caixa, sem frete extra",
+        "price": 19.9
+      },
+      {
+        "image": "fardo-monster.jpg",
+        "title": "Fardo Monster 6x473ml",
+        "description": "Para estrear o copo já gelado",
+        "price": 9.9
+      }
+    ],
+    "step3_payment": {
+      "heading_parts": [
+        "Pague só o envio",
+        "e leve o seu copo grátis"
+      ],
+      "subtext": "O copo custa R$ 0,00. O total abaixo corresponde somente à entrega que você escolheu.",
+      "totals_rows_labels": {
+        "order_number": "Pedido",
+        "free_item": "Copo Monster 1,15L + chaveiro",
+        "free_item_value": "GRÁTIS",
+        "shipping_label": "Envio rastreado ({METHOD})",
+        "bump_cup_label": "+1 copo Monster",
+        "bump_pack_label": "Fardo Monster 6x473ml",
+        "total_label": "Total a pagar"
+      },
+      "pix_cta_label": "Gerar PIX de R$ {total}",
+      "card_cta_label": "Pagar R$ {total}",
+      "pix_copy_button": "Copiar código PIX",
+      "pix_copy_button_copied": "Código copiado!",
+      "pix_steps": [
+        "Abra o app do seu banco",
+        "Escolha PIX > Pix Copia e Cola",
+        "Cole o código e confirme o pagamento"
+      ],
+      "pix_waiting_note": "Aguardando seu pagamento — a confirmação é automática",
+      "pix_error_message": "Não foi possível gerar o PIX. Tente novamente em instantes.",
+      "pix_copy_error": "Não foi possível copiar. Toque e segure o código para copiar.",
+      "card_validation_messages": [
+        "Número do cartão incompleto.",
+        "Digite o nome impresso no cartão.",
+        "Validade inválida (MM/AA).",
+        "CVV inválido."
+      ]
+    },
+    "success_screen": {
+      "heading": "Pedido confirmado!",
+      "subtext": "Pedido #{orderId}. O código de rastreio chega no seu e-mail nas próximas horas.",
+      "paid_label": "Pago R$ {total}",
+      "button": "Voltar ao início"
+    }
+  }
+}
