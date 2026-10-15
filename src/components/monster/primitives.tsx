@@ -25,8 +25,8 @@ export function QuizIcon({ name }: { name: string }) {
  return <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{icons[name]}</svg>;
 }
 export interface ActionProps extends ComponentProps<typeof Button> {}
-export function Action({ className, ...props }: ActionProps) {
- return <Button variant="ghost" className={cn("mst-cta", className)} {...props} />;
+export function Action({ className, type = "button", ...props }: ActionProps) {
+ return <Button type={type} variant="ghost" className={cn("mst-cta", className)} {...props} />;
 }
 export interface PhotoProps extends Omit<ComponentProps<"img">, "src"> { file: string }
 export function Photo({ file, alt, className, ...props }: PhotoProps) {
@@ -35,3 +35,4 @@ export function Photo({ file, alt, className, ...props }: PhotoProps) {
  if (!url || failed) return <div className={cn("mst-placeholder",className)} role="img" aria-label={alt}>[FOTO_ORIGINAL: {file}]</div>;
  return <img src={url} alt={alt} className={className} onError={() => setFailed(true)} {...props} />;
 }
+
