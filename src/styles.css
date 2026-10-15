@@ -225,3 +225,7 @@ body{margin:0;background:var(--mst-bg);color:var(--mst-ink)}
 .mst-selos svg{height:20px;width:20px}
 .mst-co-brand span{white-space:normal}
 @media(max-width:360px){.mst-co-secure{font-size:8px}.mst-co-brand span{font-size:13px}}
+
+
+/* Keep the logo height above the generic responsive-image rule. */
+.mst img.mst-logo{height:clamp(18px,5.5vw,24px);width:auto;max-width:100%}
