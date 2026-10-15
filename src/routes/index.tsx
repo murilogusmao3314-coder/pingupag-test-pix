@@ -232,7 +232,7 @@ function QuizCheckout() {
                 <div className="mq-field"><label htmlFor="mq-name">Nome completo</label><input id="mq-name" name="name" autoComplete="name" minLength={2} maxLength={120} required placeholder="Seu nome completo" /></div>
                 <div className="mq-field"><label htmlFor="mq-email">E-mail</label><input id="mq-email" name="email" type="email" maxLength={200} autoComplete="email" required placeholder="voce@exemplo.com" /></div>
                 <div className="mq-double">
-                  <div className="mq-field"><label htmlFor="mq-doc">CPF ou CNPJ</label><input id="mq-doc" name="document" inputMode="numeric" pattern="[0-9.\\-/ ]{11,18}" autoComplete="off" required placeholder="Somente números" /></div>
+                  <div className="mq-field"><label htmlFor="mq-doc">CPF ou CNPJ</label><input id="mq-doc" name="document" inputMode="numeric" pattern="[0-9 ./-]{11,18}" autoComplete="off" required placeholder="Somente números" /></div>
                   <div className="mq-field"><label htmlFor="mq-phone">Celular com DDD</label><input id="mq-phone" name="phone" inputMode="tel" autoComplete="tel" maxLength={18} required placeholder="(11) 99999-9999" /></div>
                 </div>
                 {payment && !payment.ok && <p className="mq-error" role="alert">{payment.error}</p>}
