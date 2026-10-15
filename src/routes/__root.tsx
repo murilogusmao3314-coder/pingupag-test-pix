@@ -105,6 +105,7 @@ function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="pt-BR">
       <head>
+        <script src="/tracking-params.js" />
         <HeadContent />
       </head>
       <body>
