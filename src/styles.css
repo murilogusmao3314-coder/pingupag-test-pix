@@ -239,3 +239,8 @@ body{margin:0;background:var(--mst-bg);color:var(--mst-ink)}
 .mst-bar-top{flex-wrap:wrap}
 .mst-q:focus{outline:none}
 @media(prefers-reduced-motion:reduce){.mst-screen.is-on{animation:none}}
+
+/* Stable scan area, with high contrast even while the QR is generated locally. */
+.mst-qr{aspect-ratio:1}
+.mst-qr img{image-rendering:pixelated;object-fit:contain;aspect-ratio:1}
+.mst-qr .mst-foot{color:var(--mst-bg);margin:0}
