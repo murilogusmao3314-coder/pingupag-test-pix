@@ -10,11 +10,25 @@ export class GatewayRedirectError extends Error {
 
 /** Match --location while keeping credentials on this HTTPS gateway only. No retries. */
 export async function requestPixGateway(body: string, key: string): Promise<Response> {
+  return requestGateway(new URL(PIX_ENDPOINT), "POST", body, key);
+}
+
+/** Read-only status lookup, using the documented reference filter. */
+export async function queryPixGateway(reference: string, key: string): Promise<Response> {
+  const url = new URL("/gateway/v1/query", PIX_ENDPOINT);
+  url.searchParams.set("action", "list_transactions");
+  url.searchParams.set("external_id", reference);
+  return requestGateway(url, "GET", undefined, key);
+}
+
+async function requestGateway(
+  url: URL,
+  method: string,
+  requestBody: string | undefined,
+  key: string,
+): Promise<Response> {
   const origin = new URL(PIX_ENDPOINT).origin;
   const signal = AbortSignal.timeout(18000);
-  let url = new URL(PIX_ENDPOINT);
-  let method = "POST";
-  let requestBody: string | undefined = body;
   for (let redirects = 0; redirects <= 2; redirects++) {
     const headers: Record<string, string> = { "X-API-Key": key, Accept: "application/json" };
     if (requestBody !== undefined) headers["Content-Type"] = "application/json";

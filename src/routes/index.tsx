@@ -6,6 +6,7 @@ import { Prize, ResultSections } from "@/components/monster/result-sections";
 import { Checkout } from "@/components/monster/checkout";
 import { assets } from "@/components/monster/assets";
 import { cn } from "@/lib/utils";
+import { trackMeta, orderMeta } from "@/lib/meta-events";
 import {
   QUIZ_SESSION_KEY,
   restoreQuizSession,
@@ -91,6 +92,7 @@ function MonsterExperience() {
       200,
     );
     const end = setTimeout(() => {
+      trackMeta("QuizCompleted", { total_questions: 9 }, { custom: true, key: "quiz-complete" });
       setScreen("result");
       setDeadline((old) => old ?? Date.now() + 600000);
     }, 2800);
@@ -106,8 +108,35 @@ function MonsterExperience() {
     const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
   }, [deadline]);
+  useEffect(() => {
+    if (!sessionReady) return;
+    trackMeta(
+      "FunnelStepView",
+      { stage: screen, question: screen === "quiz" ? index + 1 : 0 },
+      { custom: true, key: `stage:${screen}:${screen === "quiz" ? index : 0}` },
+    );
+    if (screen === "welcome" || screen === "result") {
+      trackMeta(
+        "ViewContent",
+        { ...orderMeta(0), content_category: screen === "result" ? "quiz_offer" : "quiz_landing" },
+        { key: `content:${screen}` },
+      );
+    }
+    if (screen === "quiz")
+      trackMeta(
+        "QuizQuestionView",
+        { question: index + 1, total_questions: 9 },
+        { custom: true, key: `question:${index}` },
+      );
+  }, [sessionReady, screen, index]);
+  function redeem() {
+    if (checkout) return;
+    trackMeta("AddToCart", orderMeta(0), { key: "quiz-prize" });
+    setCheckout(true);
+  }
   function choose(n: number) {
     if (selecting || timer.current !== null) return;
+    trackMeta("QuizAnswer", { question: index + 1, total_questions: 9 }, { custom: true });
     setSelecting(true);
     setAnswers((old) => ({ ...old, [index]: n }));
     timer.current = setTimeout(() => {
@@ -162,6 +191,7 @@ function MonsterExperience() {
                 </div>
                 <Action
                   onClick={() => {
+                    trackMeta("QuizStarted", { total_questions: 9 }, { custom: true });
                     setIndex(0);
                     setAnswers({});
                     setDeadline(null);
@@ -185,7 +215,11 @@ function MonsterExperience() {
                 answers={answers}
                 selecting={selecting}
                 onChoose={choose}
-                onBack={() => (index > 0 ? setIndex(index - 1) : setScreen("welcome"))}
+                onBack={() => {
+                  trackMeta("QuizBack", { question: index + 1 }, { custom: true });
+                  if (index > 0) setIndex(index - 1);
+                  else setScreen("welcome");
+                }}
               />
             )}{" "}
             {screen === "checking" && (
@@ -219,13 +253,13 @@ function MonsterExperience() {
               <Prize
                 preferences={quizPreferences(answers)}
                 remaining={remaining}
-                onRedeem={() => setCheckout(true)}
+                onRedeem={redeem}
               />
             )}
           </div>
         </div>
       </section>
-      {screen === "result" && <ResultSections onRedeem={() => setCheckout(true)} />}
+      {screen === "result" && <ResultSections onRedeem={redeem} />}
       <div hidden={!checkout}>
         {checkout && <Checkout remaining={remaining} onClose={() => setCheckout(false)} />}
       </div>

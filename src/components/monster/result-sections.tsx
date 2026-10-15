@@ -1,13 +1,32 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Check, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import content from "./content.json";
 import { Action, Photo } from "./primitives";
+import { trackMeta } from "@/lib/meta-events";
 export function ResultSections({ onRedeem }: { onRedeem: () => void }) {
   const [open, setOpen] = useState<string | null>(null);
+  useEffect(() => {
+    if (typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          const section = (entry.target as HTMLElement).dataset["metaSection"];
+          if (section) trackMeta("OfferSectionView", { section }, { custom: true, key: section });
+          observer.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.15 },
+    );
+    document
+      .querySelectorAll("[data-meta-section]")
+      .forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
+  }, []);
   return (
     <>
-      <section className="mst-sec">
+      <section className="mst-sec" data-meta-section="features">
         <div className="mst-wrap">
           <div className="mst-sec-label">// O que você ganhou</div>
           <h2 className="mst-h2">
@@ -30,7 +49,7 @@ export function ResultSections({ onRedeem }: { onRedeem: () => void }) {
           </div>
         </div>
       </section>
-      <section className="mst-sec">
+      <section className="mst-sec" data-meta-section="testimonials">
         <div className="mst-wrap">
           <div className="mst-sec-label">// Quem já resgatou</div>
           <h2 className="mst-h2">
@@ -55,7 +74,7 @@ export function ResultSections({ onRedeem }: { onRedeem: () => void }) {
           </div>
         </div>
       </section>
-      <section className="mst-sec">
+      <section className="mst-sec" data-meta-section="faq">
         <div className="mst-wrap">
           <div className="mst-sec-label">// Dúvidas do desafio</div>
           <h2 className="mst-h2">
@@ -69,7 +88,11 @@ export function ResultSections({ onRedeem }: { onRedeem: () => void }) {
                   className="mst-faq-q"
                   aria-expanded={open === f.question}
                   aria-controls={`faq-${i}`}
-                  onClick={() => setOpen(open === f.question ? null : f.question)}
+                  onClick={() => {
+                    if (open !== f.question)
+                      trackMeta("FAQOpened", { question_number: i + 1 }, { custom: true });
+                    setOpen(open === f.question ? null : f.question);
+                  }}
                 >
                   {f.question}
                   <i aria-hidden="true">{open === f.question ? "−" : "+"}</i>
@@ -84,7 +107,7 @@ export function ResultSections({ onRedeem }: { onRedeem: () => void }) {
           </div>
         </div>
       </section>
-      <section className="mst-sec">
+      <section className="mst-sec" data-meta-section="final_offer">
         <div className="mst-wrap">
           <div className="mst-sec-label">// Última chamada</div>
           <h2 className="mst-h2">

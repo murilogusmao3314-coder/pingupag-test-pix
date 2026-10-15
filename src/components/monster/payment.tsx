@@ -1,18 +1,35 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Action } from "./primitives";
 import { PixQrCode } from "./pix-qr-code";
+import { trackMeta } from "@/lib/meta-events";
+import { usePixConfirmation } from "./use-pix-confirmation";
 export interface PixPayment {
   qr_code: string;
   qr_code_base64: string;
+  tracking_token?: string;
+  order_reference?: string;
 }
 export function Payment({ payment, onBack }: { payment: PixPayment; onBack: () => void }) {
+  const { status, unavailable } = usePixConfirmation(payment.tracking_token);
+  useEffect(() => {
+    trackMeta(
+      "PixViewed",
+      { payment_method: "pix" },
+      { custom: true, key: payment.order_reference || "pix-current" },
+    );
+  }, [payment.order_reference]);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState("");
   const code = useRef<HTMLTextAreaElement>(null);
   async function copy() {
     try {
       await navigator.clipboard.writeText(payment.qr_code);
+      trackMeta(
+        "PixCopied",
+        { payment_method: "pix" },
+        { custom: true, key: payment.order_reference || "pix-current" },
+      );
       setCopied(true);
       setError("");
     } catch {
@@ -53,11 +70,24 @@ export function Payment({ payment, onBack }: { payment: PixPayment; onBack: () =
         </p>
       )}
       <div className="mst-watch" role="status">
-        Aguardando pagamento
+        {status === "approved"
+          ? "Pagamento confirmado"
+          : status === "failed"
+            ? "Pagamento cancelado ou expirado"
+            : status === "refunded"
+              ? "Pagamento reembolsado"
+              : status === "chargeback"
+                ? "Pagamento contestado"
+                : "Aguardando pagamento"}
       </div>
       <p className="mst-disclosure">
-        A geração do código não confirma pagamento. A confirmação automática não está disponível
-        nesta integração.
+        {status === "approved"
+          ? "Seu pagamento Pix foi confirmado pelo gateway."
+          : !payment.tracking_token
+            ? "A geração do código não confirma pagamento. A confirmação automática não está disponível para esta cobrança."
+            : unavailable
+              ? "Não foi possível consultar a confirmação agora. A geração do código não confirma pagamento; confira o status com o suporte antes de gerar outro Pix."
+              : "A geração do código não confirma pagamento. O status é consultado automaticamente enquanto esta página estiver aberta."}
       </p>
       <Button type="button" variant="ghost" className="mst-back" onClick={onBack}>
         Voltar para corrigir os dados

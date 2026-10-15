@@ -1,6 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requestPixGateway, gatewayNetworkFailure, gatewayHttpFailure } from "./pix-gateway.server";
+import {
+  requestPixGateway,
+  queryPixGateway,
+  gatewayNetworkFailure,
+  gatewayHttpFailure,
+} from "./pix-gateway.server";
+
+import { signPixReceipt, verifyPixReceipt, verifiedPixStatus } from "./pix-receipt.server";
 
 const schema = z.object({
   amount: z.number().int().min(100).max(10000000),
@@ -56,11 +63,14 @@ export const createPix = createServerFn({ method: "POST" })
       };
 
     try {
+      const reference = `QUIZ-${crypto.randomUUID()}`;
+      // Analytics availability must not prevent a customer from generating a Pix.
+      const trackingToken = await signPixReceipt(reference, data.amount, key).catch(() => null);
       const response = await requestPixGateway(
         JSON.stringify({
           amount: data.amount,
           description: data.description,
-          reference: `QUIZ-${crypto.randomUUID()}`,
+          reference,
           source: "api_externa",
           customer: {
             name: data.name,
@@ -113,10 +123,40 @@ export const createPix = createServerFn({ method: "POST" })
             "A API respondeu, mas não retornou um código Pix válido. Confira o formato de resposta do gateway.",
         };
       }
-      return { ok: true as const, qr_code: qrCode, qr_code_base64: qrImage };
+      return {
+        ok: true as const,
+        qr_code: qrCode,
+        qr_code_base64: qrImage,
+        ...(trackingToken ? { tracking_token: trackingToken } : {}),
+        order_reference: reference,
+      };
     } catch (error) {
       const failure = gatewayNetworkFailure(error);
       console.error("[pix-gateway]", { code: failure.code });
       return { ok: false as const, ...failure };
+    }
+  });
+
+/** Never trusts a browser-supplied paid flag, amount, or arbitrary order ID. */
+export const checkPixPayment = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => z.object({ token: z.string().min(1).max(2000) }).parse(input))
+  .handler(async ({ data }) => {
+    const key = process.env["PINGUPAG_API_KEY"]?.trim();
+    if (!key || /[\r\n]/.test(key)) return { ok: false as const, code: "STATUS_UNAVAILABLE" };
+    const receipt = await verifyPixReceipt(data.token, key);
+    if (!receipt) return { ok: false as const, code: "RECEIPT_EXPIRED" };
+    try {
+      const response = await queryPixGateway(receipt.reference, key);
+      const payload: unknown = await response.json();
+      if (gatewayHttpFailure(response, payload))
+        return { ok: false as const, code: "STATUS_UNAVAILABLE" };
+      return {
+        ok: true as const,
+        status: verifiedPixStatus(payload, receipt),
+        reference: receipt.reference,
+        amount: receipt.amount,
+      };
+    } catch {
+      return { ok: false as const, code: "STATUS_UNAVAILABLE" };
     }
   });

@@ -1,9 +1,10 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useId, useState, type FormEvent } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { createPix } from "@/lib/pix.functions";
 import { cn } from "@/lib/utils";
+import { trackMeta, orderMeta } from "@/lib/meta-events";
 import { Action, Photo } from "./primitives";
 import {
   customerSchema,
@@ -24,6 +25,7 @@ export function Checkout({
   onClose: () => void;
   remaining?: number;
 }) {
+  const checkoutId = useId();
   const [step, setStep] = useState(1);
   const [fields, setFields] = useState(emptyFields);
   const [shipping, setShipping] = useState<Shipping>("pac");
@@ -44,6 +46,43 @@ export function Checkout({
   useEffect(() => {
     document.querySelector(".mst-co")?.scrollTo({ top: 0 });
   }, [step, payment]);
+  useEffect(() => {
+    trackMeta("InitiateCheckout", orderMeta(990), { key: checkoutId });
+  }, [checkoutId]);
+  useEffect(() => {
+    if (!payment)
+      trackMeta(
+        "CheckoutStepView",
+        { step, stage: ["customer", "delivery", "payment"][step - 1] ?? "checkout" },
+        { custom: true, key: `${checkoutId}:${step}` },
+      );
+  }, [checkoutId, step, payment]);
+  function changeShipping(next: Shipping) {
+    if (next === shipping) return;
+    trackMeta(
+      "ShippingSelected",
+      { ...orderMeta(calculateTotal(next, cup, pack), cup, pack), shipping_method: next },
+      { custom: true },
+    );
+    setShipping(next);
+  }
+  function toggleExtra(key: "cup" | "pack") {
+    const selected = key === "cup" ? cup : pack;
+    const id = key === "cup" ? "monster-extra-cup" : "monster-pack-6";
+    trackMeta(
+      selected ? "RemoveFromCart" : "AddToCart",
+      {
+        currency: "BRL",
+        value: key === "cup" ? 19.9 : 9.9,
+        content_type: "product",
+        content_ids: [id],
+        num_items: 1,
+      },
+      { custom: selected },
+    );
+    if (key === "cup") setCup(!cup);
+    else setPack(!pack);
+  }
   function update(key: keyof CheckoutFields, value: string) {
     setFields((old) => ({ ...old, [key]: value }));
   }
@@ -63,16 +102,19 @@ export function Checkout({
     setError("");
     const customer = customerSchema.safeParse(fields);
     if (!customer.success) {
+      trackMeta("CheckoutValidationError", { stage: "customer" }, { custom: true });
       setError(customer.error.issues[0]?.message ?? "Confira seus dados.");
       setStep(1);
       return;
     }
     if (step === 1) {
+      trackMeta("Lead", { content_name: "Checkout Monster" }, { key: checkoutId });
       setStep(2);
       return;
     }
     const address = addressSchema.safeParse(fields);
     if (!address.success) {
+      trackMeta("CheckoutValidationError", { stage: "delivery" }, { custom: true });
       setError(address.error.issues[0]?.message ?? "Confira o endereço.");
       setStep(2);
       return;
@@ -81,6 +123,12 @@ export function Checkout({
       setStep(3);
       return;
     }
+    trackMeta(
+      "AddPaymentInfo",
+      { ...orderMeta(total, cup, pack), payment_method: "pix" },
+      { key: checkoutId },
+    );
+    trackMeta("PixRequested", orderMeta(total, cup, pack), { custom: true });
     setPending(true);
     try {
       const result = await createPayment({
@@ -99,9 +147,24 @@ export function Checkout({
           description: `Copo Monster 1,15L — envio ${shipping.toUpperCase()}${cup ? " +1 copo" : ""}${pack ? " + fardo 6x473ml" : ""}`,
         },
       });
-      if (result.ok) setPayment({ qr_code: result.qr_code, qr_code_base64: result.qr_code_base64 });
-      else setError(result.error);
+      if (result.ok) {
+        trackMeta(
+          "PixGenerated",
+          { ...orderMeta(total, cup, pack), payment_method: "pix" },
+          { custom: true, key: result.order_reference || checkoutId },
+        );
+        setPayment({
+          qr_code: result.qr_code,
+          qr_code_base64: result.qr_code_base64,
+          ...(result.tracking_token ? { tracking_token: result.tracking_token } : {}),
+          ...(result.order_reference ? { order_reference: result.order_reference } : {}),
+        });
+      } else {
+        trackMeta("CheckoutError", { stage: "pix_generation" }, { custom: true });
+        setError(result.error);
+      }
     } catch {
+      trackMeta("CheckoutError", { stage: "pix_generation" }, { custom: true });
       setError("Não foi possível gerar o PIX. Tente novamente em instantes.");
     } finally {
       setPending(false);
@@ -153,7 +216,7 @@ export function Checkout({
                     <br />
                     <span className="mst-lime">o seu copo</span>
                   </h2>
-                  <ShippingOptions shipping={shipping} onChange={setShipping} />
+                  <ShippingOptions shipping={shipping} onChange={changeShipping} />
                   <AddressFields fields={fields} update={update} />
                 </>
               )}
@@ -167,11 +230,7 @@ export function Checkout({
                     O copo custa R$ 0,00. O total corresponde à entrega escolhida e aos adicionais
                     que você selecionar.
                   </p>
-                  <Extras
-                    cup={cup}
-                    pack={pack}
-                    toggle={(key) => (key === "cup" ? setCup(!cup) : setPack(!pack))}
-                  />
+                  <Extras cup={cup} pack={pack} toggle={toggleExtra} />
                   <Totals shipping={shipping} cup={cup} pack={pack} />
                   <div className="mst-pay-tabs">
                     <div className="mst-pay-tab is-on">

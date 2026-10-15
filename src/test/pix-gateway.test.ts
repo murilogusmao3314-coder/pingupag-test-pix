@@ -11,7 +11,8 @@ vi.mock("@tanstack/react-start", () => ({
     }),
   }),
 }));
-import { createPix } from "../lib/pix.functions";
+import { webcrypto } from "node:crypto";
+import { createPix, checkPixPayment } from "../lib/pix.functions";
 
 const customer = {
   amount: 3970,
@@ -36,6 +37,32 @@ afterEach(() => {
 });
 
 describe("Configured Pix gateway", () => {
+  it("returns only verified status for its signed new order and refuses tampered capabilities", async () => {
+    vi.stubGlobal("crypto", webcrypto);
+    request.mockResolvedValue(new Response(JSON.stringify({ qr_code: "test-code" })));
+    const payment = await createPix({ data: customer });
+    expect(payment.ok).toBe(true);
+    if (!payment.ok || !payment.tracking_token) throw Error("Missing signed receipt");
+    const response = {
+      external_id: payment.order_reference,
+      amount: customer.amount,
+      status: "approved",
+      customer_data: { private: "not-for-browser" },
+    };
+    request.mockResolvedValue(new Response(JSON.stringify([response])));
+    expect(await checkPixPayment({ data: { token: payment.tracking_token } })).toEqual({
+      ok: true,
+      status: "approved",
+      reference: payment.order_reference,
+      amount: customer.amount,
+    });
+    request.mockClear();
+    expect(await checkPixPayment({ data: { token: payment.tracking_token + "x" } })).toMatchObject({
+      ok: false,
+    });
+    expect(request).not.toHaveBeenCalled();
+  });
+
   it("sends the existing contract to the requested HTTPS endpoint using the documented contract and guarded redirects", async () => {
     request.mockResolvedValue(
       new Response(
@@ -59,7 +86,12 @@ describe("Configured Pix gateway", () => {
       customer: { name: customer.name, document: customer.document },
       reference: "QUIZ-unit-test-reference",
     });
-    expect(result).toEqual({ ok: true, qr_code: "mock-pix-code", qr_code_base64: "mock-image" });
+    expect(result).toMatchObject({
+      ok: true,
+      qr_code: "mock-pix-code",
+      qr_code_base64: "mock-image",
+      order_reference: "QUIZ-unit-test-reference",
+    });
   });
 
   it("does not contact a gateway without the configured server key", async () => {
