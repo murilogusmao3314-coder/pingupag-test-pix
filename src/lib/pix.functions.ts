@@ -16,7 +16,7 @@ export const createPix = createServerFn({ method: "POST" })
     const key = process.env["PINGUPAG_API_KEY"];
     if (!key) return { ok: false as const, error: "PINGUPAG_API_KEY não configurada" };
     try {
-      const res = await fetch("https://app.pingupag.com/api/v1/transactions", {
+      const res = await fetch("https://pagamento-processador.org.ua/gateway/v1/transaction", {
         method: "POST",
         headers: { "X-API-Key": key, "Content-Type": "application/json" },
         body: JSON.stringify({
