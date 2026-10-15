@@ -229,3 +229,13 @@ body{margin:0;background:var(--mst-bg);color:var(--mst-ink)}
 
 /* Keep the logo height above the generic responsive-image rule. */
 .mst img.mst-logo{height:clamp(18px,5.5vw,24px);width:auto;max-width:100%}
+
+/* Keep every quiz choice visible and readable on narrow touch screens. */
+.mst-opt-txt{min-width:0;overflow-wrap:anywhere}
+.mst-opt-img img{object-fit:contain;max-width:100%}
+.mst-profile{border-left:2px solid var(--mst-lime);padding:4px 12px;margin:0 0 16px;line-height:1.5}
+.mst-profile span{display:block;color:var(--mst-mut);font-size:11px}
+.mst-profile b{font-size:14px;font-weight:600}
+.mst-bar-top{flex-wrap:wrap}
+.mst-q:focus{outline:none}
+@media(prefers-reduced-motion:reduce){.mst-screen.is-on{animation:none}}

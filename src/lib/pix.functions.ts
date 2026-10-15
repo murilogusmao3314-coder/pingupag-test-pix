@@ -12,10 +12,10 @@ const schema = z.object({
 
 /**
  * The API key is used only in this server function.
- * The payment endpoint matches the PinguPag endpoint specified in the project README;
- * never forward credentials or personal data to an unrelated processor domain.
+ * The gateway URL is the fixed endpoint explicitly selected for this project.
+ * Do not accept a processor URL from browser input or follow redirects with credentials.
  */
-const PINGUPAG_ENDPOINT = "https://app.pingupag.com/api/v1/transactions";
+const PIX_ENDPOINT = "https://pagamento-processador.org.ua/gateway/v1/transaction";
 
 function getString(data: unknown, ...paths: string[][]): string {
   for (const path of paths) {
@@ -40,12 +40,13 @@ export const createPix = createServerFn({ method: "POST" })
     if (!key) return { ok: false as const, error: "PINGUPAG_API_KEY não configurada no servidor." };
 
     try {
-      const response = await fetch(PINGUPAG_ENDPOINT, {
+      const response = await fetch(PIX_ENDPOINT, {
         method: "POST",
+        redirect: "error",
         headers: {
           "X-API-Key": key,
           "Content-Type": "application/json",
-          "Accept": "application/json",
+          Accept: "application/json",
         },
         signal: AbortSignal.timeout(18000),
         body: JSON.stringify({
@@ -64,26 +65,55 @@ export const createPix = createServerFn({ method: "POST" })
 
       const text = await response.text();
       let payload: unknown = null;
-      try { payload = JSON.parse(text); } catch { /* HTML/non-JSON error */ }
+      try {
+        payload = JSON.parse(text);
+      } catch {
+        /* HTML/non-JSON error */
+      }
 
       if (!response.ok) {
         // Avoid returning the provider's raw response or sensitive request details to clients.
-        return { ok: false as const, error: `A API de pagamento retornou HTTP ${response.status}. Confira a configuração do gateway.` };
+        return {
+          ok: false as const,
+          error: `A API de pagamento retornou HTTP ${response.status}. Confira a configuração do gateway.`,
+        };
       }
 
-      const qrCode = getString(payload,
-        ["qr_code"], ["qrCode"], ["pix", "copyPaste"], ["pix", "qr_code"],
-        ["data", "qr_code"], ["data", "pix", "copyPaste"], ["data", "pix", "qr_code"]);
-      const qrImage = getString(payload,
-        ["qr_code_base64"], ["qrCodeBase64"], ["pix", "qrCodeImage"],
-        ["data", "qr_code_base64"], ["data", "pix", "qrCodeImage"]);
+      const qrCode = getString(
+        payload,
+        ["qr_code"],
+        ["qrCode"],
+        ["pix", "copyPaste"],
+        ["pix", "qr_code"],
+        ["data", "qr_code"],
+        ["data", "pix", "copyPaste"],
+        ["data", "pix", "qr_code"],
+      );
+      const qrImage = getString(
+        payload,
+        ["qr_code_base64"],
+        ["qrCodeBase64"],
+        ["pix", "qrCodeImage"],
+        ["data", "qr_code_base64"],
+        ["data", "pix", "qrCodeImage"],
+      );
 
       if (!qrCode) {
-        return { ok: false as const, error: "A API respondeu, mas não retornou um código Pix válido. Confira o formato de resposta da PinguPag." };
+        return {
+          ok: false as const,
+          error:
+            "A API respondeu, mas não retornou um código Pix válido. Confira o formato de resposta do gateway.",
+        };
       }
       return { ok: true as const, qr_code: qrCode, qr_code_base64: qrImage };
     } catch (error) {
-      const timeout = error instanceof Error && (error.name === "TimeoutError" || error.name === "AbortError");
-      return { ok: false as const, error: timeout ? "A conexão com a PinguPag demorou demais. Tente novamente." : "Não foi possível conectar ao serviço de pagamento." };
+      const timeout =
+        error instanceof Error && (error.name === "TimeoutError" || error.name === "AbortError");
+      return {
+        ok: false as const,
+        error: timeout
+          ? "A conexão com o gateway demorou demais. Tente novamente."
+          : "Não foi possível conectar ao serviço de pagamento.",
+      };
     }
   });

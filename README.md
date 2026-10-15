@@ -1,6 +1,19 @@
 # Pingupag Test Pix
 
-integre a api pix da https://app.pingupag.com/documentation e o endpoint é app.pingupag.com/api/v1/transactions ok? faz um formulario e o botao pra testar o pagamento, so pra tesstar msm, economize o maximo de creditos possiveis
+## Gateway Pix
+
+Endpoint definido para este projeto: `https://pagamento-processador.org.ua/gateway/v1/transaction`.
+As requisições saem exclusivamente de `src/lib/pix.functions.ts`, com `PINGUPAG_API_KEY`
+armazenada no servidor e enviada no cabeçalho `X-API-Key`. O contrato de payload existente
+foi preservado; o total continua em centavos. Redirecionamentos do gateway são rejeitados.
+
+Os testes de integração usam respostas simuladas e não geram cobranças. O contrato e a
+disponibilidade do novo gateway ainda precisam ser validados com o provedor em ambiente de teste.
+
+## Quiz
+
+As nove perguntas e 32 alternativas seguem o material de referência. Respostas, pergunta atual
+e prazo visual são mantidos apenas na sessão da aba, sem armazenar dados do checkout.
 
 This project was built with [Lovable](https://lovable.dev).
 
