@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requestPixGateway, gatewayNetworkFailure, gatewayHttpFailure } from "./pix-gateway.server";
 
 const schema = z.object({
   amount: z.number().int().min(100).max(10000000),
@@ -8,14 +9,24 @@ const schema = z.object({
   email: z.string().email().max(200),
   document: z.string().regex(/^\d{11,14}$/),
   phone: z.string().regex(/^\d{10,11}$/),
+  address: z
+    .object({
+      street: z.string().trim().min(1).max(150),
+      number: z.string().trim().min(1).max(20),
+      complement: z.string().trim().max(100).optional(),
+      neighborhood: z.string().trim().min(1).max(100),
+      city: z.string().trim().min(1).max(100),
+      state: z.string().regex(/^[A-Z]{2}$/),
+      zipcode: z.string().regex(/^\d{8}$/),
+    })
+    .optional(),
 });
 
 /**
  * The API key is used only in this server function.
  * The gateway URL is the fixed endpoint explicitly selected for this project.
- * Do not accept a processor URL from browser input or follow redirects with credentials.
+ * Redirects are limited to the documented HTTPS gateway; no automatic POST retries.
  */
-const PIX_ENDPOINT = "https://pagamento-processador.org.ua/gateway/v1/transaction";
 
 function getString(data: unknown, ...paths: string[][]): string {
   for (const path of paths) {
@@ -36,20 +47,17 @@ function getString(data: unknown, ...paths: string[][]): string {
 export const createPix = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => schema.parse(input))
   .handler(async ({ data }) => {
-    const key = process.env["PINGUPAG_API_KEY"];
+    const key = process.env["PINGUPAG_API_KEY"]?.trim();
     if (!key) return { ok: false as const, error: "PINGUPAG_API_KEY não configurada no servidor." };
+    if (/[\r\n]/.test(key))
+      return {
+        ok: false as const,
+        error: "PINGUPAG_API_KEY contém uma quebra de linha inválida. Confira o valor no servidor.",
+      };
 
     try {
-      const response = await fetch(PIX_ENDPOINT, {
-        method: "POST",
-        redirect: "error",
-        headers: {
-          "X-API-Key": key,
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        signal: AbortSignal.timeout(18000),
-        body: JSON.stringify({
+      const response = await requestPixGateway(
+        JSON.stringify({
           amount: data.amount,
           description: data.description,
           reference: `QUIZ-${crypto.randomUUID()}`,
@@ -60,8 +68,10 @@ export const createPix = createServerFn({ method: "POST" })
             document: data.document,
             phone: data.phone,
           },
+          ...(data.address ? { address: data.address } : {}),
         }),
-      });
+        key,
+      );
 
       const text = await response.text();
       let payload: unknown = null;
@@ -71,12 +81,10 @@ export const createPix = createServerFn({ method: "POST" })
         /* HTML/non-JSON error */
       }
 
-      if (!response.ok) {
-        // Avoid returning the provider's raw response or sensitive request details to clients.
-        return {
-          ok: false as const,
-          error: `A API de pagamento retornou HTTP ${response.status}. Confira a configuração do gateway.`,
-        };
+      const failure = gatewayHttpFailure(response, payload);
+      if (failure) {
+        console.error("[pix-gateway]", { code: failure.code, status: response.status });
+        return { ok: false as const, ...failure };
       }
 
       const qrCode = getString(
@@ -107,13 +115,8 @@ export const createPix = createServerFn({ method: "POST" })
       }
       return { ok: true as const, qr_code: qrCode, qr_code_base64: qrImage };
     } catch (error) {
-      const timeout =
-        error instanceof Error && (error.name === "TimeoutError" || error.name === "AbortError");
-      return {
-        ok: false as const,
-        error: timeout
-          ? "A conexão com o gateway demorou demais. Tente novamente."
-          : "Não foi possível conectar ao serviço de pagamento.",
-      };
+      const failure = gatewayNetworkFailure(error);
+      console.error("[pix-gateway]", { code: failure.code });
+      return { ok: false as const, ...failure };
     }
   });

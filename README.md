@@ -5,10 +5,19 @@
 Endpoint definido para este projeto: `https://pagamento-processador.org.ua/gateway/v1/transaction`.
 As requisições saem exclusivamente de `src/lib/pix.functions.ts`, com `PINGUPAG_API_KEY`
 armazenada no servidor e enviada no cabeçalho `X-API-Key`. O contrato de payload existente
-foi preservado; o total continua em centavos. Redirecionamentos do gateway são rejeitados.
+segue a documentação enviada em `Texto colado(1).txt`: `source: api_externa`, total em centavos,
+`customer` e `address.zipcode`. O endereço informado no checkout passa a integrar a cobrança.
 
-Os testes de integração usam respostas simuladas e não geram cobranças. O contrato e a
-disponibilidade do novo gateway ainda precisam ser validados com o provedor em ambiente de teste.
+A chamada respeita redirecionamentos HTTPS do mesmo domínio dentro de `/gateway/v1/`,
+com limite de dois saltos e sem encaminhar a chave a outro domínio. Não há novas tentativas
+POST automáticas após falha de rede. Erros de DNS, TLS, autenticação, bloqueio de acesso e
+redirecionamento recebem mensagens distintas; os logs não incluem chave ou dados pessoais.
+
+Os testes de integração usam respostas simuladas e não geram cobranças. No diagnóstico
+sem credenciais realizado em 15/10/2026, o gateway devolveu HTTP 403 / Cloudflare 1010
+para este ambiente. Isso não comprova a causa no servidor do site; a geração real de Pix
+continua dependente da conectividade e das permissões do provedor. Não desative TLS,
+não mova a chave ao navegador e não altere o domínio para contornar bloqueios.
 
 ## Quiz
 

@@ -87,6 +87,15 @@ export function Checkout({
         data: {
           ...customer.data,
           amount: total,
+          address: {
+            street: address.data.street,
+            number: address.data.number,
+            complement: address.data.complement,
+            neighborhood: address.data.neighborhood,
+            city: address.data.city,
+            state: address.data.state,
+            zipcode: address.data.cep,
+          },
           description: `Copo Monster 1,15L — envio ${shipping.toUpperCase()}${cup ? " +1 copo" : ""}${pack ? " + fardo 6x473ml" : ""}`,
         },
       });
@@ -170,9 +179,8 @@ export function Checkout({
                     </div>
                   </div>
                   <p className="mst-disclosure">
-                    Ao gerar o Pix, você cria uma cobrança real. Os dados de entrega permanecem
-                    apenas nesta sessão; a integração atual envia ao processador configurado os
-                    dados pessoais e o total, sem registrar um pedido de envio.
+                    Ao gerar o Pix, você cria uma cobrança real. Os dados necessários do cliente, o
+                    endereço de entrega e o total são enviados ao gateway pelo servidor.
                   </p>
                 </>
               )}
