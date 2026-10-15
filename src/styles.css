@@ -244,3 +244,9 @@ body{margin:0;background:var(--mst-bg);color:var(--mst-ink)}
 .mst-qr{aspect-ratio:1}
 .mst-qr img{image-rendering:pixelated;object-fit:contain;aspect-ratio:1}
 .mst-qr .mst-foot{color:var(--mst-bg);margin:0}
+
+/* Brazilian telephone entry: fixed country prefix inside the existing field. */
+.mst-phone-input{position:relative;min-width:0}
+.mst-phone-prefix{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--mst-mut);font-size:16px;pointer-events:none}
+.mst-field .mst-phone-input input{padding-left:54px;min-width:0}
+.mst-contact-fields>.mst-field{min-width:0}
