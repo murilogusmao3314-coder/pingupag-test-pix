@@ -1,6 +1,7 @@
 import type { ComponentProps } from "react";
 import type { CheckoutFields } from "./checkout-schema";
-import { formatCpf, formatPhone, maskInput } from "./input-masks";
+import { formatCep, formatCpf, formatPhone, maskInput } from "./input-masks";
+import type { CepFeedback } from "./use-cep-lookup";
 export interface FieldsProps {
   fields: CheckoutFields;
   update: (key: keyof CheckoutFields, value: string) => void;
@@ -12,13 +13,15 @@ interface FieldProps extends Omit<ComponentProps<"input">, "onChange"> {
   update: FieldsProps["update"];
 }
 function Field({ field, label, fields, update, ...props }: FieldProps) {
-  const masked = field === "document" || field === "phone";
+  const masked = field === "document" || field === "phone" || field === "cep";
   const value =
     field === "document"
       ? formatCpf(fields[field])
       : field === "phone"
         ? formatPhone(fields[field])
-        : fields[field];
+        : field === "cep"
+          ? formatCep(fields[field])
+          : fields[field];
   return (
     <div className="mst-field">
       <label htmlFor={`co-${field}`}>{label}</label>
@@ -96,7 +99,10 @@ export function CustomerFields(props: FieldsProps) {
     </>
   );
 }
-export function AddressFields(props: FieldsProps) {
+export function AddressFields({
+  cepFeedback,
+  ...props
+}: FieldsProps & { cepFeedback?: CepFeedback }) {
   return (
     <>
       <div className="mst-kicker">Endereço de entrega</div>
@@ -108,9 +114,18 @@ export function AddressFields(props: FieldsProps) {
           inputMode="numeric"
           placeholder="00000-000"
           autoComplete="postal-code"
-          maxLength={9}
+          aria-describedby="co-cep-feedback"
+          aria-busy={cepFeedback?.loading || false}
         />
         <Field {...props} field="number" label="Número" placeholder="Nº" maxLength={20} />
+      </div>
+      <div id="co-cep-feedback" role="status" aria-live="polite">
+        {cepFeedback?.message && <p className="mst-disclosure">{cepFeedback.message}</p>}
+        {cepFeedback?.retry && (
+          <button type="button" className="mst-back" onClick={cepFeedback.retry}>
+            Tentar buscar CEP novamente
+          </button>
+        )}
       </div>
       <Field
         {...props}

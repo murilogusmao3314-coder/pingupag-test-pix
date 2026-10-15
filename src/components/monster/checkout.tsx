@@ -16,6 +16,7 @@ import {
   type Shipping,
 } from "./checkout-schema";
 import { CustomerFields, AddressFields } from "./checkout-fields";
+import { useCepLookup } from "./use-cep-lookup";
 import { ShippingOptions, Extras, Totals, Seals } from "./order";
 import { Payment, type PixPayment } from "./payment";
 export function Checkout({
@@ -34,6 +35,7 @@ export function Checkout({
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
   const [payment, setPayment] = useState<PixPayment | null>(null);
+  const cepFeedback = useCepLookup(fields, setFields, step === 2 && !payment);
   const createPayment = useServerFn(createPix);
   const total = calculateTotal(shipping, cup, pack);
   useEffect(() => {
@@ -217,7 +219,7 @@ export function Checkout({
                     <span className="mst-lime">o seu copo</span>
                   </h2>
                   <ShippingOptions shipping={shipping} onChange={changeShipping} />
-                  <AddressFields fields={fields} update={update} />
+                  <AddressFields fields={fields} update={update} cepFeedback={cepFeedback} />
                 </>
               )}
               {step === 3 && (

@@ -19,6 +19,12 @@ export function formatCpf(value: string): string {
     .replace(/^(\d{3}\.\d{3})(\d)/, "$1.$2")
     .replace(/(\.\d{3})(\d)/, "$1-$2");
 }
+export function formatCep(value: string): string {
+  return value
+    .replace(/\D/g, "")
+    .slice(0, 8)
+    .replace(/^(\d{5})(\d)/, "$1-$2");
+}
 export function formatPhone(value: string): string {
   const digits = phoneInputDigits(value).slice(0, 11);
   if (!digits) return "";
@@ -29,10 +35,11 @@ export function formatPhone(value: string): string {
 }
 
 /** Preserve the editing position when punctuation is inserted or removed. */
-export function maskInput(input: HTMLInputElement, field: "document" | "phone"): string {
+export function maskInput(input: HTMLInputElement, field: "document" | "phone" | "cep"): string {
   const raw = input.value;
   const position = input.selectionStart ?? raw.length;
-  const formatted = field === "phone" ? formatPhone(raw) : formatCpf(raw);
+  const formatted =
+    field === "phone" ? formatPhone(raw) : field === "cep" ? formatCep(raw) : formatCpf(raw);
   const removedPrefix =
     field === "phone" ? raw.replace(/\D/g, "").length - phoneInputDigits(raw).length : 0;
   const before = Math.max(0, raw.slice(0, position).replace(/\D/g, "").length - removedPrefix);
