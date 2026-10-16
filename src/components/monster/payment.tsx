@@ -1,16 +1,27 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Action } from "./primitives";
 import { PixQrCode } from "./pix-qr-code";
 import { trackMeta } from "@/lib/meta-events";
 import { usePixConfirmation } from "./use-pix-confirmation";
+import { money } from "./checkout-schema";
 export interface PixPayment {
   qr_code: string;
   qr_code_base64: string;
   tracking_token?: string;
   order_reference?: string;
 }
-export function Payment({ payment, onBack }: { payment: PixPayment; onBack: () => void }) {
+export function Payment({
+  payment,
+  onBack,
+  summary,
+  amount,
+}: {
+  payment: PixPayment;
+  onBack: () => void;
+  summary?: ReactNode;
+  amount?: number;
+}) {
   const { status, unavailable } = usePixConfirmation(payment.tracking_token);
   useEffect(() => {
     trackMeta(
@@ -44,10 +55,20 @@ export function Payment({ payment, onBack }: { payment: PixPayment; onBack: () =
       <h2 className="mst-h2">
         Seu código <span className="mst-lime">PIX</span>
       </h2>
-      <PixQrCode key={payment.qr_code} value={payment.qr_code} />
-      <Action type="button" onClick={copy}>
-        {copied ? "Código copiado!" : "Copiar código PIX"}
-      </Action>
+      {summary}
+      <div className="mst-pix-action" role="group" aria-label="Ações do pagamento Pix">
+        <div className="mst-bar-in mst-pix-action-row">
+          {typeof amount === "number" && (
+            <div className="mst-bar-tot">
+              <span>Total do pedido</span>
+              <b>{money(amount)}</b>
+            </div>
+          )}
+          <Action type="button" onClick={copy} aria-label={copied ? "Código Pix copiado" : "Copiar código PIX"}>
+            {copied ? "Código copiado!" : "Copiar código PIX"}
+          </Action>
+        </div>
+      </div>
       <label className="mst-foot" htmlFor="pix-code">
         Pix Copia e Cola
       </label>
@@ -59,6 +80,7 @@ export function Payment({ payment, onBack }: { payment: PixPayment; onBack: () =
         readOnly
         rows={4}
       />
+      <PixQrCode key={payment.qr_code} value={payment.qr_code} />
       <ol className="mst-pix-steps">
         <li>Abra o app do seu banco</li>
         <li>Escolha PIX &gt; Pix Copia e Cola</li>
