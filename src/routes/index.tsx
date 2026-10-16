@@ -253,7 +253,7 @@ function MonsterExperience() {
                   ))}
                 </ul>
                 <p className="mst-disclosure">
-                  Animação local do desafio. Não há consulta real de estoque ou reserva de produto.
+                  
                 </p>
               </div>
             )}

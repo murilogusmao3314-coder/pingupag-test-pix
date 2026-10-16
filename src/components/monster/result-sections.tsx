@@ -183,7 +183,7 @@ export function Prize({
       </div>
       <Action onClick={onRedeem}>Resgatar meu copo</Action>
       <p className="mst-disclosure">
-        Contagem visual da referência; não representa reserva real de estoque.
+        
       </p>
     </>
   );
