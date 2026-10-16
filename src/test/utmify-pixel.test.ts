@@ -28,4 +28,4 @@ describe("Utmify pixel loader", () => {
     expect(root.match(/src="\/meta-pixel.js"/g)).toHaveLength(1);
     expect(root.indexOf("/tracking-params.js")).toBeLessThan(root.indexOf("/utmify-pixel.js"));
   });
-}
+});
