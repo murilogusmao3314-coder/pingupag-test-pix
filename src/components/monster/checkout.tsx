@@ -198,8 +198,12 @@ export function Checkout({
         <div className="mst-co-body">
           {payment ? (
             <>
-              <Payment payment={payment} onBack={() => setPayment(null)} />
-              <Totals shipping={shipping} cup={cup} pack={pack} />
+              <Payment
+                payment={payment}
+                onBack={() => setPayment(null)}
+                amount={total}
+                summary={<Totals shipping={shipping} cup={cup} pack={pack} />}
+              />
             </>
           ) : (
             <>
@@ -270,9 +274,15 @@ export function Checkout({
               </b>
               <span>Total {money(total)}</span>
             </div>
-            <Action type="submit" form="monster-checkout" disabled={pending}>
-              {pending ? "Gerando PIX…" : step < 3 ? "Continuar" : `Gerar PIX de ${money(total)}`}
-            </Action>
+            <div className="mst-bar-act">
+              <div className="mst-bar-tot" aria-label={`Total do pedido: ${money(total)}`}>
+                <span>Total</span>
+                <b>{money(total)}</b>
+              </div>
+              <Action type="submit" form="monster-checkout" disabled={pending}>
+                {pending ? "Gerando PIX…" : step < 3 ? "Continuar" : `Gerar PIX de ${money(total)}`}
+              </Action>
+            </div>
           </div>
         </div>
       )}
