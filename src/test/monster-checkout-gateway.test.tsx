@@ -38,11 +38,11 @@ describe("Checkout gateway contract", () => {
     createPayment.mockResolvedValue({ ok: true, qr_code: "mock-pix-code", qr_code_base64: "" });
     reachPayment();
     expect(createPayment).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole("button", { name: "Gerar PIX de R$ 9,90" }));
+    fireEvent.click(screen.getByRole("button", { name: "Gerar PIX de R$ 14,37" }));
     await waitFor(() => expect(createPayment).toHaveBeenCalledOnce());
     expect(createPayment.mock.calls[0]?.[0]).toMatchObject({
       data: {
-        amount: 990,
+        amount: 1437,
         document: "00000000000",
         phone: "11999999999",
         address: {
@@ -67,7 +67,7 @@ describe("Checkout gateway contract", () => {
       error: "O gateway bloqueou a conexão do servidor (Cloudflare).",
     });
     reachPayment();
-    fireEvent.click(screen.getByRole("button", { name: "Gerar PIX de R$ 9,90" }));
+    fireEvent.click(screen.getByRole("button", { name: "Gerar PIX de R$ 14,37" }));
     expect(await screen.findByRole("alert")).toHaveTextContent("Cloudflare");
     expect(screen.queryByText("Aguardando pagamento")).not.toBeInTheDocument();
     expect(createPayment).toHaveBeenCalledOnce();

@@ -415,7 +415,7 @@
           "id": "pac",
           "name": "Entrega padrão · PAC",
           "eta": "7 a 12 dias úteis · com rastreio",
-          "cost": 9.9,
+          "cost": 14.37,
           "was": 18.9
         },
         {
@@ -423,7 +423,7 @@
           "name": "Expresso · SEDEX",
           "eta": "2 a 5 dias úteis · com rastreio",
           "eta_dynamic_note": "Previsão: chega AMANHÃ, {data} · com rastreio",
-          "cost": 18.94
+          "cost": 22.86
         }
       ],
       "address_section_kicker": "Endereço de entrega",

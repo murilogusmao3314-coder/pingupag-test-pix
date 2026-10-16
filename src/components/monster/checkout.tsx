@@ -53,7 +53,7 @@ export function Checkout({
     document.querySelector(".mst-co")?.scrollTo({ top: 0 });
   }, [step, payment]);
   useEffect(() => {
-    trackMeta("InitiateCheckout", orderMeta(990), { key: checkoutId });
+    trackMeta("InitiateCheckout", orderMeta(1437), { key: checkoutId });
   }, [checkoutId]);
   useEffect(() => {
     if (!payment)

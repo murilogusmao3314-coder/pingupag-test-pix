@@ -28,17 +28,17 @@ describe("Meta funnel event safety", () => {
     const fbq = vi.fn();
     vi.stubGlobal("fbq", fbq);
     const first = await import("../lib/meta-events");
-    first.trackPurchase("order-a", 1894);
-    first.trackPurchase("order-a", 1894);
+    first.trackPurchase("order-a", 2286);
+    first.trackPurchase("order-a", 2286);
     vi.resetModules();
     const next = await import("../lib/meta-events");
-    next.trackPurchase("order-a", 1894);
-    next.trackPurchase("order-b", 990);
+    next.trackPurchase("order-a", 2286);
+    next.trackPurchase("order-b", 1437);
     expect(fbq).toHaveBeenCalledTimes(2);
     expect(fbq.mock.calls[0]).toEqual([
       "track",
       "Purchase",
-      { value: 18.94, currency: "BRL", order_id: "order-a", payment_method: "pix" },
+      { value: 22.86, currency: "BRL", order_id: "order-a", payment_method: "pix" },
       { eventID: "Purchase:order-a" },
     ]);
   });
@@ -56,13 +56,13 @@ describe("Meta funnel event safety", () => {
       }),
     });
     const { trackPurchase } = await import("../lib/meta-events");
-    trackPurchase("QUIZ-12345678-1234-1234-1234-123456789012", 990);
-    trackPurchase("QUIZ-12345678-1234-1234-1234-123456789012", 990);
+    trackPurchase("QUIZ-12345678-1234-1234-1234-123456789012", 1437);
+    trackPurchase("QUIZ-12345678-1234-1234-1234-123456789012", 1437);
     expect(dataLayer).toHaveLength(1);
     expect(dataLayer[0]).toMatchObject({
       event: "purchase",
       transaction_id: "QUIZ-12345678-1234-1234-1234-123456789012",
-      ecommerce: { value: 9.9, currency: "BRL" },
+      ecommerce: { value: 14.37, currency: "BRL" },
       attribution: { parameters: { utm_source: "organic", extra: "ok", tag: ["1", "2"] } },
     });
     expect(JSON.stringify(dataLayer)).not.toContain("private@example.invalid");
@@ -80,7 +80,7 @@ describe("Meta funnel event safety", () => {
       }),
     });
     const { trackPurchase } = await import("../lib/meta-events");
-    trackPurchase("order-original-params", 990, [
+    trackPurchase("order-original-params", 1437, [
       ["utm_source", "original"],
       ["fbclid", "fb-click-id"],
       ["custom_tag", "one"],

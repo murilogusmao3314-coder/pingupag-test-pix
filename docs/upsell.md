@@ -1,13 +1,13 @@
 # Pós-compra: serviço prioritário opcional
 
 A rota `/upsell` substitui a antiga oferta física por um serviço opcional de
-R$ 28,63 (2863 centavos). `/upsell1` redireciona para `/upsell` apenas por
+R$ 18,43 (1843 centavos). `/upsell1` redireciona para `/upsell` apenas por
 compatibilidade com links anteriores; não há mais produtos do kit nesse fluxo.
 
 ## Fluxo preservado
 
 1. Checkout existente gera o Pix do pedido principal, com os preços corrigidos
-   apenas para o fardo: OB2 R$ 19,90. O front continua R$ 9,90 / R$ 18,94,
+   apenas para o fardo: OB2 R$ 19,90. O front continua R$ 14,37 / R$ 22,86,
    e o copo adicional continua R$ 19,90, conforme código já existente.
 2. O gateway precisa retornar `approved` no pagamento principal. Só então
    `checkPixPayment` emite o acesso individual assinado, que é armazenado
@@ -17,7 +17,7 @@ compatibilidade com links anteriores; não há mais produtos do kit nesse fluxo.
    `/upsell` revalida a transação e a correspondência com essa referência.
 4. **Recusar** chama `continueToTracking`, dispensa a oferta e navega
    `/rastrear?acesso=<acesso_original>`.
-5. **Aceitar** abre um segundo Pix de R$ 28,63 para o serviço opcional.
+5. **Aceitar** abre um segundo Pix de R$ 18,43 para o serviço opcional.
    Sua descrição contém a referência do pedido principal. Apenas a
    aprovação real dessa segunda cobrança conclui a contratação e chama
    a mesma `continueToTracking` com o mesmo acesso original.

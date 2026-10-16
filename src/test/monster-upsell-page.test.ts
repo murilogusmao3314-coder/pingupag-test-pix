@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 describe("Optional priority service and original tracking integrity", () => {
-  it("offers R$ 28,63 once, with four benefits, clear opt-out and no original-code mutation", () => {
+  it("offers R$ 18,43 once, with four benefits, clear opt-out and no original-code mutation", () => {
     const page = readFileSync("src/routes/upsell.tsx", "utf8");
     expect(page).toContain('createFileRoute("/upsell")');
     expect(page).toContain('Serviço opcional');

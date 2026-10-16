@@ -12,9 +12,9 @@ describe("gateway-verified tracking without a database", () => {
     const paidAtA = new Date(Date.now() - 4 * 86400000 - 1000).toISOString();
     const paidAtB = new Date(Date.now() - 10000).toISOString();
     const records = [
-      { external_id: A, amount: 990, status: "approved", paid_at: paidAtA, description: "Copo A",
+      { external_id: A, amount: 1437, status: "approved", paid_at: paidAtA, description: "Copo A",
         address: { street: "Rua Alfa", number: "10", city: "São Paulo", state: "SP", zipcode: "01001000" } },
-      { external_id: B, amount: 1894, status: "approved", paid_at: paidAtB, description: "Copo B",
+      { external_id: B, amount: 2286, status: "approved", paid_at: paidAtB, description: "Copo B",
         address: { street: "Rua Beta", number: "20", city: "Santos", state: "SP", zipcode: "11000000" } },
     ];
     const query = vi.fn(async (input: string | URL | Request) => {
@@ -35,7 +35,7 @@ describe("gateway-verified tracking without a database", () => {
   });
   it("does not invent an address or advance without an approval timestamp", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => Response.json([
-      { external_id: A, amount: 990, status: "approved" },
+      { external_id: A, amount: 1437, status: "approved" },
     ])));
     const result = await lookupOrderTracking(await codeForPaidReference(A, secret), secret);
     expect(result).toMatchObject({ ok: true, stage: 1, timelineAvailable: false, address: null });
@@ -43,7 +43,7 @@ describe("gateway-verified tracking without a database", () => {
   it("distinguishes payment pending, missing order and communication failure", async () => {
     const code = await codeForPaidReference(A, secret);
     vi.stubGlobal("fetch", vi.fn(async () => Response.json([
-      { external_id: A, amount: 990, status: "pending" },
+      { external_id: A, amount: 1437, status: "pending" },
     ])));
     expect(await lookupOrderTracking(code, secret)).toMatchObject({ ok: true, status: "pending" });
     vi.stubGlobal("fetch", vi.fn(async () => Response.json([])));
@@ -52,7 +52,7 @@ describe("gateway-verified tracking without a database", () => {
     expect(await lookupOrderTracking(code, secret)).toEqual({ ok: false, code: "UNAVAILABLE" });
   });
   it("resolves twelve-character codes from provider's unfiltered read-only list", async () => {
-    const record = { external_id: A, amount: 990, status: "approved", paid_at: new Date(Date.now() - 86400000).toISOString(), description: "Copo A" };
+    const record = { external_id: A, amount: 1437, status: "approved", paid_at: new Date(Date.now() - 86400000).toISOString(), description: "Copo A" };
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
       const lookup = new URL(String(input));
       if (!lookup.searchParams.has("external_id")) return Response.json([record]);

@@ -10,7 +10,7 @@ import { verifyPixReceipt, verifiedPixStatus, signPixReceipt } from "./pix-recei
 import { openUtmifyContext, sealUtmifyContext } from "./utmify-envelope.server";
 import { sendUtmifyOrder } from "./utmify-orders.server";
 
-export const UPSELL_AMOUNT = 2863;
+export const UPSELL_AMOUNT = 1843;
 export const UPSELL_PRODUCT = {
   id: "servico-expedicao-prioritaria",
   name: "Serviço opcional de prioridade, garantia e suporte",

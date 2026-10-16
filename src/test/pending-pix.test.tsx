@@ -43,13 +43,13 @@ describe("Pix purchase recovery", () => {
       ok: true,
       status: "approved",
       reference,
-      amount: 1894,
+      amount: 2286,
     });
     renderHook(() => usePendingPurchases(true));
     await waitFor(() => expect(dataLayer).toHaveLength(1));
     expect(dataLayer[0]).toMatchObject({
       event: "purchase",
-      ecommerce: { value: 18.94, currency: "BRL" },
+      ecommerce: { value: 22.86, currency: "BRL" },
     });
     expect(fbq.mock.calls.some((call) => call[1] === "Purchase")).toBe(true);
     expect(readPendingPix()).toEqual([]);
@@ -60,7 +60,7 @@ describe("Pix purchase recovery", () => {
     const onFirstPaymentApproved = vi.fn();
     rememberPendingPix(token, reference);
     checkPayment.mockResolvedValueOnce({
-      ok: true, status: "approved", reference, amount: 1894, upsellEligible: true,
+      ok: true, status: "approved", reference, amount: 2286, upsellEligible: true,
     });
     const first = renderHook(() => usePendingPurchases(true, onFirstPaymentApproved));
     await waitFor(() =>
@@ -82,7 +82,7 @@ describe("Pix purchase recovery", () => {
     const dataLayer: Record<string, unknown>[] = [];
     vi.stubGlobal("dataLayer", dataLayer);
     rememberPendingPix(token, reference);
-    checkPayment.mockResolvedValue({ ok: true, status: "pending", reference, amount: 990 });
+    checkPayment.mockResolvedValue({ ok: true, status: "pending", reference, amount: 1437 });
     const view = renderHook(() => usePendingPurchases(true));
     await act(async () => {
       await waitFor(() => expect(checkPayment).toHaveBeenCalledOnce());

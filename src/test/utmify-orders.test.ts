@@ -15,7 +15,7 @@ import { sealUtmifyContext, openUtmifyContext } from "../lib/utmify-envelope.ser
 
 const reference = "QUIZ-12345678-1234-1234-1234-123456789012";
 const customer = {
-  amount: 990,
+  amount: 1437,
   description: "Envio Monster",
   name: "Cliente Exemplo",
   email: "cliente@example.invalid",
@@ -77,7 +77,7 @@ describe("UTMify server orders", () => {
       if (url.includes("/gateway/v1/query"))
         return Promise.resolve(new Response(JSON.stringify([{
           external_id: orderReference,
-          amount: 990,
+          amount: 1437,
           status: "approved",
         }])));
       if (url.includes("api.utmify.com.br"))
@@ -95,7 +95,7 @@ describe("UTMify server orders", () => {
       orderId: orderReference,
       status: "waiting_payment",
       trackingParameters: customer.trackingParameters,
-      commission: { totalPriceInCents: 990, userCommissionInCents: 990 },
+      commission: { totalPriceInCents: 1437, userCommissionInCents: 1437 },
     });
     expect(Object.keys(waiting.trackingParameters).sort())
       .toEqual(Object.keys(customer.trackingParameters).sort());
@@ -104,7 +104,7 @@ describe("UTMify server orders", () => {
     expect(first[1].body).not.toContain("test-utmify-api-token");
     const result = await checkPixPayment({ data: { token: generated.tracking_token } });
     expect(result).toMatchObject({
-      ok: true, status: "approved", reference: orderReference, amount: 990,
+      ok: true, status: "approved", reference: orderReference, amount: 1437,
       attribution: customer.parameters,
     });
     const submissions = fetchMock.mock.calls.filter((call) =>

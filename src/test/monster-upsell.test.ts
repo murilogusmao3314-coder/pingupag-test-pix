@@ -59,13 +59,13 @@ beforeEach(async () => {
   latestReference = "";
   fetchMock.mockReset();
   const envelope = await sealUtmifyContext(context, secret);
-  parentToken = await signPixReceipt(parentRef, 990, secret, envelope);
+  parentToken = await signPixReceipt(parentRef, 1437, secret, envelope);
   fetchMock.mockImplementation(async (url: string, options: RequestInit) => {
     if (url.includes("/gateway/v1/query")) {
       const reference = new URL(url).searchParams.get("external_id");
       return new Response(JSON.stringify([{
         external_id: reference,
-        amount: reference === parentRef ? 990 : UPSELL_AMOUNT,
+        amount: reference === parentRef ? 1437 : UPSELL_AMOUNT,
         status: reference === parentRef ? currentParentStatus : "approved",
       }]));
     }
@@ -89,7 +89,7 @@ describe("Verified optional priority service", () => {
     expect(fetchMock.mock.calls.filter(([url]) => String(url).includes("/transaction"))).toHaveLength(0);
   });
 
-  it("charges precisely R$ 28,63 with a separate reference and reuses encrypted delivery", async () => {
+  it("charges precisely R$ 18,43 with a separate reference and reuses encrypted delivery", async () => {
     currentParentStatus = "approved";
     const result = await createUpsellPix({ data: { parentToken } });
     expect(result).toMatchObject({ ok: true, qr_code: "upsell-mock-pix" });
@@ -112,7 +112,7 @@ describe("Verified optional priority service", () => {
     expect(await verifyPixReceipt(result.tracking_token, secret)).toMatchObject({
       kind: "upsell",
       reference: result.order_reference,
-      amount: 2863,
+      amount: 1843,
     });
     const confirmed = await checkPixPayment({ data: { token: result.tracking_token } });
     expect(confirmed).toMatchObject({

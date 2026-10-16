@@ -27,13 +27,13 @@ describe("Checkout button intent", () => {
     const view = render(
       <Payment
         payment={{ qr_code: "PIX-TEST-CODE", qr_code_base64: "" }}
-        amount={1894}
+        amount={2286}
         summary={<div data-testid="payment-summary">Resumo do pedido</div>}
         onBack={vi.fn()}
       />,
     );
     const action = view.getByRole("group", { name: "Ações do pagamento Pix" });
-    expect(action.textContent).toContain("R$ 18,94");
+    expect(action.textContent).toContain("R$ 22,86");
     expect(view.getAllByRole("button", { name: "Copiar código PIX" })).toHaveLength(1);
     expect(action.querySelectorAll(".mst-cta")).toHaveLength(1);
     expect(view.getByTestId("payment-summary").compareDocumentPosition(action) &

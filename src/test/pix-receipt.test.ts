@@ -9,7 +9,7 @@ import {
 import { queryPixGateway } from "../lib/pix-gateway.server";
 const reference = "QUIZ-12345678-1234-1234-1234-123456789012";
 const secret = "test-only-server-key";
-const receipt: PixReceipt = { reference, amount: 990, expiresAt: Date.now() + 60000 };
+const receipt: PixReceipt = { reference, amount: 1437, expiresAt: Date.now() + 60000 };
 beforeEach(() => vi.stubGlobal("crypto", webcrypto));
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -18,9 +18,9 @@ afterEach(() => {
 
 describe("Verified Pix conversion", () => {
   it("signs the order reference and exact amount without exposing the key", async () => {
-    const token = await signPixReceipt(reference, 990, secret);
+    const token = await signPixReceipt(reference, 1437, secret);
     expect(token).not.toContain(secret);
-    expect(await verifyPixReceipt(token, secret)).toMatchObject({ reference, amount: 990 });
+    expect(await verifyPixReceipt(token, secret)).toMatchObject({ reference, amount: 1437 });
     expect(await verifyPixReceipt(token, "wrong-key")).toBeNull();
     const [payload, signature] = token.split(".");
     const changed = JSON.parse(Buffer.from(payload!, "base64url").toString());
@@ -34,28 +34,28 @@ describe("Verified Pix conversion", () => {
   });
   it("rejects expired, malformed and arbitrary reference capabilities", async () => {
     vi.useFakeTimers();
-    const token = await signPixReceipt(reference, 990, secret);
+    const token = await signPixReceipt(reference, 1437, secret);
     vi.advanceTimersByTime(24 * 60 * 60000 + 1);
     expect(await verifyPixReceipt(token, secret)).toBeNull();
     expect(await verifyPixReceipt("invalid.token.more", secret)).toBeNull();
-    await expect(signPixReceipt("other-order", 990, secret)).rejects.toThrow();
+    await expect(signPixReceipt("other-order", 1437, secret)).rejects.toThrow();
   });
   it.each(["pending", "processing", "under_review", "success", "failed", "refunded", "chargeback"])(
     "never treats %s as an approved purchase",
     (status) => {
       expect(
-        verifiedPixStatus([{ external_id: reference, amount: 990, status }], receipt),
+        verifiedPixStatus([{ external_id: reference, amount: 1437, status }], receipt),
       ).not.toBe("approved");
     },
   );
   it("requires matching reference, exact cents and explicit approved status", () => {
     expect(
-      verifiedPixStatus([{ external_id: reference, amount: 990, status: "approved" }], receipt),
+      verifiedPixStatus([{ external_id: reference, amount: 1437, status: "approved" }], receipt),
     ).toBe("approved");
     for (const data of [
-      [{ external_id: "different", amount: 990, status: "approved" }],
-      [{ external_id: reference, amount: 991, status: "approved" }],
-      [{ external_id: reference, amount: "990", status: "approved" }],
+      [{ external_id: "different", amount: 1437, status: "approved" }],
+      [{ external_id: reference, amount: 1438, status: "approved" }],
+      [{ external_id: reference, amount: "1437", status: "approved" }],
       { status: "approved" },
       null,
       [],
