@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as Upsell1RouteImport } from './routes/upsell1'
 import { Route as PedidoRouteImport } from './routes/pedido'
 import { Route as RastrearRouteImport } from './routes/rastrear'
+import { Route as PrevisualizarRastreioRouteImport } from './routes/previsualizar-rastreio'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -36,17 +37,25 @@ const RastrearRoute = RastrearRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 
+const PrevisualizarRastreioRoute = PrevisualizarRastreioRouteImport.update({
+  id: '/previsualizar-rastreio',
+  path: '/previsualizar-rastreio',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/upsell1': typeof Upsell1Route
   '/pedido': typeof PedidoRoute
   '/rastrear': typeof RastrearRoute
+  '/previsualizar-rastreio': typeof PrevisualizarRastreioRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/upsell1': typeof Upsell1Route
   '/pedido': typeof PedidoRoute
   '/rastrear': typeof RastrearRoute
+  '/previsualizar-rastreio': typeof PrevisualizarRastreioRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -54,13 +63,14 @@ export interface FileRoutesById {
   '/upsell1': typeof Upsell1Route
   '/pedido': typeof PedidoRoute
   '/rastrear': typeof RastrearRoute
+  '/previsualizar-rastreio': typeof PrevisualizarRastreioRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/upsell1' | '/pedido' | '/rastrear'
+  fullPaths: '/' | '/upsell1' | '/pedido' | '/rastrear' | '/previsualizar-rastreio'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/upsell1' | '/pedido' | '/rastrear'
-  id: '__root__' | '/' | '/upsell1' | '/pedido' | '/rastrear'
+  to: '/' | '/upsell1' | '/pedido' | '/rastrear' | '/previsualizar-rastreio'
+  id: '__root__' | '/' | '/upsell1' | '/pedido' | '/rastrear' | '/previsualizar-rastreio'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -68,6 +78,7 @@ export interface RootRouteChildren {
   Upsell1Route: typeof Upsell1Route
   PedidoRoute: typeof PedidoRoute
   RastrearRoute: typeof RastrearRoute
+  PrevisualizarRastreioRoute: typeof PrevisualizarRastreioRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -100,6 +111,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RastrearRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/previsualizar-rastreio': {
+      id: '/previsualizar-rastreio'
+      path: '/previsualizar-rastreio'
+      fullPath: '/previsualizar-rastreio'
+      preLoaderRoute: typeof PrevisualizarRastreioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -108,6 +126,7 @@ const rootRouteChildren: RootRouteChildren = {
   Upsell1Route: Upsell1Route,
   PedidoRoute: PedidoRoute,
   RastrearRoute: RastrearRoute,
+  PrevisualizarRastreioRoute: PrevisualizarRastreioRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowRight, Check, CheckCheck, Clipboard, MapPin, Package, RotateCw, ShieldCheck, Truck, Search } from "lucide-react";
+import { ArrowRight, Check, CheckCheck, Clipboard, MapPin, Package, RotateCw, ShieldCheck, Truck, Search, BadgeCheck, LockKeyhole, CircleDot, Sparkles } from "lucide-react";
 import { getOrderTracking } from "@/lib/order-tracking.functions";
-import { recentTrackingCodes, rememberTrackingCode } from "./tracking-client";
+import { recentTrackingCodes, rememberTrackingCode, resolveSavedTrackingCode } from "./tracking-client";
 import "./order-tracking.css";
 
 type TrackingData = Awaited<ReturnType<typeof getOrderTracking>>; 
 type View = "initial" | "loading" | "invalid" | "not_found" | "unavailable" | "pending" | "ended" | "found";
-const CODE_PATTERN = /^MST-[0-9A-F]{32}-[0-9A-F]{24}$/;
+const CODE_PATTERN = /^(?:CR[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{10}|MST-[0-9A-F]{32}-[0-9A-F]{24})$/;
 const STEPS = [
   ["Pedido recebido", "O pedido foi registrado para acompanhamento."],
   ["Pedido em preparação", "Etapa de preparação do pedido."],
@@ -51,9 +51,10 @@ function TrackingOverview({ data }: { data: Extract<TrackingData, { ok: true }> 
   }
   return <div className="trk-detail">
     <div className="trk-item-summary">
+      <div className="trk-card-icon"><Package size={22} aria-hidden="true" /></div>
       <span className="trk-eyebrow">PEDIDO CONFIRMADO</span>
       <h2>{data.product}</h2>
-      <div className="trk-codebox"><div><small>CÓDIGO DE ACOMPANHAMENTO</small><strong>{data.trackingCode}</strong></div>
+      <div className="trk-codebox"><div><small>CÓDIGO DE ACOMPANHAMENTO</small><strong className="trk-track-number">{data.trackingCode}</strong></div>
         <button className="trk-copy" type="button" onClick={copyCode}><Clipboard size={17} /> {copied ? "Copiado" : "Copiar"}</button>
       </div>
       {copyError && <p className="trk-help" role="alert">Não foi possível copiar automaticamente. Selecione o código acima para copiar.</p>}
@@ -62,7 +63,7 @@ function TrackingOverview({ data }: { data: Extract<TrackingData, { ok: true }> 
     </div>
     <section className="trk-journey" aria-label="Etapas do acompanhamento">
       <div className="trk-journey-top">
-        <div><span className="trk-eyebrow">ACOMPANHAMENTO</span><h2 className={data.stage === 6 ? "trk-last" : ""}>Etapas do seu pedido</h2></div>
+        <div className="trk-journey-title"><div className="trk-card-icon"><Truck size={21} aria-hidden="true" /></div><span className="trk-eyebrow">ACOMPANHAMENTO</span><h2 className={data.stage === 6 ? "trk-last" : ""}>Etapas do seu pedido</h2></div>
         <span className="trk-step-count">{data.stage} de 6 etapas</span>
       </div>
       <ol className="trk-steps">
@@ -70,7 +71,7 @@ function TrackingOverview({ data }: { data: Extract<TrackingData, { ok: true }> 
           const number = index + 1;
           const completed = number <= data.stage;
           return <li className={(completed ? "is-complete " : "") + (number === data.stage ? "is-current" : "")} key={title}>
-            <span className="trk-step-marker" aria-hidden="true">{completed ? <Check size={16} /> : number}</span>
+            <span className="trk-step-marker" aria-hidden="true">{completed ? <Check size={16} strokeWidth={3} /> : <CircleDot size={14} />}</span>
             <div className="trk-step-copy"><strong>{title}</strong><span>{description}</span></div>
             {number === data.stage && <span className="trk-now">ETAPA ATUAL</span>}
           </li>;
@@ -91,12 +92,12 @@ export function TrackingPage() {
     const cleaned = code.trim().toUpperCase();
     setText(cleaned);
     setDetails(null);
-    if (!CODE_PATTERN.test(cleaned)) { setView("invalid"); return; }
     const current = ++request.current;
+    if (!CODE_PATTERN.test(cleaned)) { setView("invalid"); return; }
     setView("loading");
     const began = Date.now();
     let response: TrackingData | null = null;
-    try { response = await findTracking({ data: { code: cleaned } }); }
+    try { response = await findTracking({ data: { code: resolveSavedTrackingCode(cleaned) } }); }
     catch { /* The lookup should still display an explicit communication failure. */ }
     const remaining = 2000 - (Date.now() - began);
     if (remaining > 0) await new Promise<void>((resolve) => setTimeout(resolve, remaining));
@@ -107,13 +108,15 @@ export function TrackingPage() {
       return;
     }
     if (response.status !== "approved") { setView(response.status === "pending" ? "pending" : "ended"); return; }
-    rememberTrackingCode(cleaned);
+    rememberTrackingCode(response.accessCode, response.trackingCode);
+    setText(response.trackingCode);
     setDetails(response);
     setView("found");
-    if (updateUrl) window.history.replaceState(null, "", "/rastrear?codigo=" + encodeURIComponent(cleaned));
+    if (updateUrl) window.history.replaceState(null, "", "/rastrear?acesso=" + encodeURIComponent(response.accessCode));
   }, [findTracking]);
   useEffect(() => {
-    const code = new URLSearchParams(window.location.search).get("codigo");
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("acesso") ?? params.get("codigo");
     if (code) void lookup(code, false);
     return () => { request.current++; };
   }, [lookup]);
@@ -125,13 +128,13 @@ export function TrackingPage() {
     <Brand />
     <div className="trk-wrap">
       <div className="trk-notice"><ShieldCheck size={20} aria-hidden="true" /><p><strong>Canal de acompanhamento da loja.</strong> Consulte as atualizações do seu pedido por esta página e salve o link para futuras consultas. Para dúvidas sobre entrega, entre em contato com a loja.</p></div>
-      <div className="trk-hero"><div className="trk-eyebrow">SEU PEDIDO, EM UM SÓ LUGAR</div>
+      <div className="trk-hero"><div className="trk-hero-mark"><Package size={28} strokeWidth={1.7} /></div><div className="trk-eyebrow">SEU PEDIDO, EM UM SÓ LUGAR</div>
         <h1>Acompanhe seu <em>pedido.</em></h1>
         <p>Digite o código recebido após a aprovação do pagamento para consultar as informações disponíveis.</p>
       </div>
       <form className="trk-search" onSubmit={submit}>
         <label htmlFor="tracking-code">Código de acompanhamento</label>
-        <div className="trk-search-row"><input id="tracking-code" value={text} autoComplete="off" spellCheck={false} onChange={e => setText(e.target.value)} placeholder="MST-..." aria-invalid={view === "invalid" || view === "not_found"} />
+        <div className="trk-search-row"><input id="tracking-code" value={text} autoComplete="off" spellCheck={false} onChange={e => setText(e.target.value)} placeholder="CRXXXXXXXXXX" maxLength={75} aria-invalid={view === "invalid" || view === "not_found"} />
           <button type="submit" disabled={view === "loading"}><Search size={18} aria-hidden="true" /> Consultar</button></div>
       </form>
       {view === "loading" && <div className="trk-state" role="status"><RotateCw className="trk-spin" size={25} /><h2>Consultando seu pedido…</h2><p>Verificando as informações no sistema.</p></div>}
@@ -155,12 +158,12 @@ export function ConfirmationPage() {
   const [retry, setRetry] = useState(0);
   useEffect(() => {
     let live = true;
-    const code = recentTrackingCodes()[0];
+    const code = new URLSearchParams(window.location.search).get("acesso") ?? recentTrackingCodes()[0];
     if (!code) { setView("missing"); return; }
     setView("checking");
     void findTracking({ data: { code } }).then(result => {
       if (!live) return;
-      if (result.ok && result.status === "approved") { setOrder(result); setView("approved"); }
+      if (result.ok && result.status === "approved") { rememberTrackingCode(result.accessCode, result.trackingCode); setOrder(result); setView("approved"); }
       else setView(result.ok && result.status === "pending" ? "pending" : "unavailable");
     }).catch(() => { if (live) setView("unavailable"); });
     return () => { live = false; };
@@ -171,7 +174,9 @@ export function ConfirmationPage() {
           <span className="trk-eyebrow">COMPRA CONFIRMADA</span><h1>Pagamento <em>aprovado!</em></h1>
           <p>Seu pagamento foi confirmado e o pedido foi registrado para acompanhamento.</p>
           {order && <div className="trk-confirm-product"><Package size={18} />{order.product}</div>}
-          {order && <a className="trk-primary" href={"/rastrear?codigo=" + encodeURIComponent(order.trackingCode)}>Acompanhar meu pedido <ArrowRight size={19} /></a>}
+          {order && <div className="trk-confirm-code"><small>SEU CÓDIGO DE ACOMPANHAMENTO</small><strong className="trk-track-number">{order.trackingCode}</strong></div>}
+          <div className="trk-confirm-notice"><ShieldCheck size={18} /><span>Guarde este link. O acompanhamento do pedido estará disponível na página da loja, com as atualizações registradas em nosso sistema.</span></div>
+          {order && <a className="trk-primary" href={"/rastrear?acesso=" + encodeURIComponent(order.accessCode)}>Acompanhar meu pedido <ArrowRight size={19} /></a>}
         </> : <>
           <div className="trk-confirm-icon"><Package size={35} /></div>
           <h1>{view === "checking" ? "Conferindo pagamento…" : view === "pending" ? "Aguardando aprovação" : view === "missing" ? "Localize seu pedido" : "Consulta indisponível"}</h1>
@@ -181,4 +186,46 @@ export function ConfirmationPage() {
         </>}
     </section>
   </div></main>;
+}
+
+/** Isolated internal visual preview. It never requests or changes payment status. */
+export function InternalTrackingPreview() {
+  const [code, setCode] = useState<"CR-DEMO001" | "CR-DEMO002">("CR-DEMO001");
+  const [page, setPage] = useState<"confirmacao" | "rastreio">("confirmacao");
+  const data: Extract<TrackingData, { ok: true }> = {
+    ok: true, status: "approved", trackingCode: code, accessCode: "",
+    product: "Copo térmico Monster 1,15L", address: null,
+    stage: code === "CR-DEMO001" ? 2 : 5, timelineAvailable: true,
+  };
+  return <main className="trk-shell">
+    <Brand small={page === "confirmacao"} />
+    <div className="trk-wrap">
+      <div className="trk-preview-alert" role="status">
+        <LockKeyhole size={18} aria-hidden="true" />
+        <span><b>Prévia interna para a equipe.</b> Os códigos desta tela não representam pagamentos ou rastreamentos reais.</span>
+      </div>
+      <nav className="trk-preview-nav" aria-label="Exemplos de teste">
+        {(["CR-DEMO001", "CR-DEMO002"] as const).map((item) =>
+          <button type="button" key={item} onClick={() => { setCode(item); setPage("confirmacao"); }}
+            aria-pressed={code === item} className={code === item ? "is-selected" : ""}>{item}</button>)}
+      </nav>
+      {page === "confirmacao" ? <section className="trk-confirm trk-preview-confirm" aria-label="Prévia da página de aprovação">
+        <div className="trk-success-symbol"><CheckCheck size={42} /></div>
+        <span className="trk-eyebrow">EXEMPLO DE PÓS-VENDA</span>
+        <h1>Pagamento <em>aprovado!</em></h1>
+        <p>Seu pagamento foi confirmado e o pedido foi registrado para acompanhamento.</p>
+        <div className="trk-confirm-product"><Package size={18} />{data.product}</div>
+        <div className="trk-confirm-code"><small>SEU CÓDIGO DE ACOMPANHAMENTO</small><strong className="trk-track-number">{code}</strong></div>
+        <div className="trk-confirm-notice"><ShieldCheck size={18} /><span>Guarde este link. O acompanhamento do pedido estará disponível na página da loja, com as atualizações registradas em nosso sistema.</span></div>
+        <button type="button" className="trk-primary" onClick={() => setPage("rastreio")}>Acompanhar meu pedido <ArrowRight size={19} /></button>
+      </section> : <>
+        <div className="trk-hero trk-preview-heading"><div className="trk-hero-mark"><Sparkles size={26} /></div>
+          <span className="trk-eyebrow">ACOMPANHAMENTO INDIVIDUAL</span><h1>Seu pedido, <em>etapa por etapa.</em></h1>
+          <p>Consulte o progresso do seu pedido diretamente em nossa página de acompanhamento.</p></div>
+        <TrackingOverview data={data} />
+        <button type="button" className="trk-retry trk-preview-back" onClick={() => setPage("confirmacao")}>Voltar à confirmação</button>
+      </>}
+      <div className="trk-footnote"><BadgeCheck size={18} /><span>Visualização para conferência da interface. Nenhum Pix é criado e nenhum pedido real é consultado.</span></div>
+    </div>
+  </main>;
 }

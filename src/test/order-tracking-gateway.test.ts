@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { codeForPaidReference, lookupOrderTracking } from "@/lib/order-tracking.server";
+import { codeForPaidReference, shortCodeForReference, lookupOrderTracking } from "@/lib/order-tracking.server";
 
 const secret = "test-gateway-key";
 const A = "QUIZ-12345678-1234-4123-8123-123456789abc";
@@ -50,6 +50,27 @@ describe("gateway-verified tracking without a database", () => {
     expect(await lookupOrderTracking(code, secret)).toEqual({ ok: false, code: "NOT_FOUND" });
     vi.stubGlobal("fetch", vi.fn(async () => { throw new Error("offline"); }));
     expect(await lookupOrderTracking(code, secret)).toEqual({ ok: false, code: "UNAVAILABLE" });
+  });
+  it("resolves twelve-character codes from provider's unfiltered read-only list", async () => {
+    const record = { external_id: A, amount: 990, status: "approved", paid_at: new Date(Date.now() - 86400000).toISOString(), description: "Copo A" };
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const lookup = new URL(String(input));
+      if (!lookup.searchParams.has("external_id")) return Response.json([record]);
+      return Response.json(lookup.searchParams.get("external_id") === A ? [record] : []);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const short = await shortCodeForReference(A, secret);
+    const result = await lookupOrderTracking(short, secret);
+    expect(result).toMatchObject({ ok: true, status: "approved", trackingCode: short,
+      accessCode: await codeForPaidReference(A, secret) });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+  it("never recognizes internal preview identifiers as real orders", async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+    expect(await lookupOrderTracking("CR-DEMO001", secret)).toEqual({ ok: false, code: "INVALID_CODE" });
+    expect(await lookupOrderTracking("CR-DEMO002", secret)).toEqual({ ok: false, code: "INVALID_CODE" });
+    expect(fetchMock).not.toHaveBeenCalled();
   });
   it("blocks altered codes before reaching the gateway", async () => {
     const fetchMock = vi.fn();

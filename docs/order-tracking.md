@@ -31,3 +31,25 @@ verificação). Se o cliente abandonar a compra e voltar após a expiração do
 comprovante sem ter recebido ou salvo o código, a descoberta automática não
 é possível sem armazenamento externo ou informação da venda do gateway.
 Não existe webhook de confirmação nem mecanismo de e-mail no repositório atual.
+
+## Código curto e prévia da equipe
+
+Na interface, o comprador vê apenas o identificador opaco CR + 10 caracteres
+alfanuméricos (12 caracteres no total). A ligação com a referência QUIZ continua
+validada no servidor. Durante a exibição do Pix apenas o prefixo CR é visível;
+a tela não contém o restante do código antes de o gateway confirmar o pagamento.
+
+A URL individual usa um token assinado longo na chave `acesso`; o texto copiado
+na página é o código curto. A consulta manual pelo código curto reutiliza a
+capacidade local, quando presente. Em outro dispositivo, tenta resolver o código
+por `GET /gateway/v1/query?action=list_transactions` sem filtro. Essa operação
+read-only só funciona se o provedor oferecer listagem completa de transações. Se
+ele não oferecer ou não permitir, o link assinado continua funcional, mas a
+consulta manual de um código curto em um dispositivo novo não está garantida.
+A resposta da listagem nunca é retornada ao cliente.
+
+A página `/previsualizar-rastreio` apresenta exclusivamente uma prévia
+interna e permite alternar entre CR-DEMO001 e CR-DEMO002. Esses códigos
+não são reconhecidos na consulta pública e não comprovam pagamentos. Essa
+prévia está separada do funil e marcada como interna; o link não deve ser
+publicado em anúncios nem encaminhado a compradores.

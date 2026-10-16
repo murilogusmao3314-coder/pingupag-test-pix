@@ -71,3 +71,41 @@
 .trk-secondary{display:inline-flex;align-items:center;gap:8px;margin-top:23px;color:var(--t-green);text-decoration:underline;text-underline-offset:4px}
 @media(max-width:720px){.trk-detail{grid-template-columns:1fr}.trk-brand{padding:14px 18px;gap:11px}.trk-brand-logo img{width:74px;height:41px}.trk-brand span{font-size:9px;letter-spacing:.08em}.trk-wrap{padding:18px 13px 50px}.trk-hero{padding:35px 5px 22px}.trk-search{padding:17px}.trk-search-row{flex-direction:column}.trk-search button{width:100%;min-height:50px}.trk-item-summary,.trk-journey{padding:20px}.trk-notice{padding:12px}.trk-steps li{min-height:80px}.trk-confirm{margin-top:45px}.trk-now{font-size:8px}}
 @media(prefers-reduced-motion:reduce){.trk-spin{animation:none}.trk-search button,.trk-primary{transition:none}}
+
+/* Premium post-purchase refinement: scoped to tracking and Pix-only status card. */
+.trk-track-number{font-family:"JetBrains Mono","Space Mono",ui-monospace,monospace!important;font-weight:800!important;letter-spacing:.09em!important;font-variant-ligatures:none}
+.trk-hero-mark,.trk-card-icon{display:grid;place-items:center;border:1px solid #a6ff005a;background:radial-gradient(circle,#a6ff001f,#a6ff0009);color:var(--t-green);border-radius:18px}
+.trk-hero-mark{width:64px;height:64px;margin:0 auto 21px}
+.trk-card-icon{width:46px;height:46px;margin:0 auto 15px}
+.trk-item-summary{text-align:center}
+.trk-item-summary h2{margin-bottom:20px}
+.trk-item-summary .trk-eyebrow{display:block}
+.trk-codebox{flex-direction:column;text-align:center;gap:12px;padding:20px 12px}
+.trk-codebox strong{font-size:clamp(19px,2.4vw,26px);letter-spacing:.07em;word-break:break-all}
+.trk-copy{padding:10px 17px}
+.trk-address{text-align:left}
+.trk-journey-top{display:block;text-align:center;margin-bottom:16px}
+.trk-journey h2{margin:9px 0 10px}
+.trk-step-count{display:inline-flex;margin:5px auto 16px}
+.trk-step-copy{text-align:left}
+.trk-now{font-size:9px}
+.trk-confirm-code{background:#0b150c;border:1px solid #a6ff004a;border-radius:13px;padding:17px;margin:16px 0}
+.trk-confirm-code small{display:block;font-size:10px;letter-spacing:.1em;color:#b9c9b0;margin-bottom:7px}
+.trk-confirm-code strong{font-size:clamp(24px,4vw,32px);color:#caff85;display:block}
+.trk-confirm-notice{display:flex;align-items:flex-start;text-align:left;gap:12px;border-radius:11px;background:#a6ff000b;border:1px solid #a6ff0036;padding:14px;color:#c3d4bb;font-size:12px;line-height:1.7;margin:0 0 21px}
+.trk-confirm-notice svg{flex:none;color:var(--t-green);margin-top:2px}
+.trk-preview-alert{display:flex;align-items:center;gap:12px;border:1px solid #d7ae6173;background:#3d2e15;color:#f7dcaa;border-radius:12px;padding:13px 16px;font-size:12px}
+.trk-preview-alert svg{flex:none}
+.trk-preview-nav{display:flex;justify-content:center;gap:10px;margin:24px auto 0;flex-wrap:wrap}
+.trk-preview-nav button{background:#162019;border:1px solid #4b6246;color:#d1e2c7;border-radius:9px;padding:10px 15px;font-family:ui-monospace,monospace;cursor:pointer}
+.trk-preview-nav button.is-selected{color:#15210d;background:var(--t-green);border-color:var(--t-green)}
+.trk-preview-confirm{margin-top:30px}
+.trk-preview-confirm .trk-primary{width:100%}
+.trk-preview-heading{padding-bottom:16px}
+.trk-preview-back{margin:24px auto;display:flex}
+.mst-locked-track{border:1px solid #a6ff0040;border-radius:14px;background:#a6ff000a;padding:17px;margin:22px 0;color:#f1f7e9}
+.mst-locked-track-head{display:flex;gap:9px;align-items:center;color:#caeb9f;font-size:13px}
+.mst-locked-track-code{display:flex;align-items:center;justify-content:center;gap:0;white-space:nowrap;padding:15px 0 8px;font-family:"JetBrains Mono",ui-monospace,monospace;font-size:clamp(21px,5vw,30px);font-weight:700;letter-spacing:.14em}
+.mst-track-obscured{filter:blur(10px);opacity:.44;user-select:none;pointer-events:none}
+.mst-locked-track p{color:#becbb5;font-size:12px;line-height:1.7;text-align:center;margin:4px auto 0;max-width:390px}
+@media(max-width:720px){.trk-journey-top{margin-bottom:7px}.trk-item-summary .trk-card-icon{margin-bottom:14px}.trk-preview-alert{align-items:flex-start}.trk-codebox strong{font-size:21px}.trk-preview-nav button{flex:1}}

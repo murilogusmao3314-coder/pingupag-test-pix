@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
+import { LockKeyhole } from "lucide-react";
 import { Action } from "./primitives";
 import { PixQrCode } from "./pix-qr-code";
 import { trackMeta } from "@/lib/meta-events";
@@ -95,6 +96,13 @@ export function Payment({
           {error}
         </p>
       )}
+      <section className="mst-locked-track" aria-label="Código de acompanhamento bloqueado">
+        <div className="mst-locked-track-head"><LockKeyhole size={16} aria-hidden="true" /><strong>Acompanhamento do pedido</strong></div>
+        <div className="mst-locked-track-code" aria-label="Código CR bloqueado até a confirmação do pagamento">
+          <span>CR</span><span className="mst-track-obscured" aria-hidden="true">XXXXXXXXXX</span>
+        </div>
+        <p>O código completo de acompanhamento será liberado somente após a confirmação real do pagamento.</p>
+      </section>
       <div className="mst-watch" role="status">
         {status === "approved"
           ? "Pagamento confirmado"

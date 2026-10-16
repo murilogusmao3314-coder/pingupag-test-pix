@@ -1,8 +1,22 @@
-import { queryPixGateway, gatewayHttpFailure } from "./pix-gateway.server";
+import { queryPixGateway, listPixGatewayTransactions, gatewayHttpFailure } from "./pix-gateway.server";
 
 const REFERENCE = /^QUIZ-([0-9a-f]{8})-([0-9a-f]{4})-([0-9a-f]{4})-([0-9a-f]{4})-([0-9a-f]{12})$/;
 const CODE = /^MST-([0-9A-F]{32})-([0-9A-F]{24})$/;
 const encoder = new TextEncoder();
+const SHORT_CODE = /^CR[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{10}$/;
+
+/** 50-bit opaque, stable code, including the two-character CR prefix (12 total). */
+export async function shortCodeForReference(reference: string, secret: string): Promise<string> {
+  if (!REFERENCE.test(reference)) throw new Error("Invalid gateway reference");
+  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let value = BigInt("0x" + (await mac(reference, secret)).slice(0, 13)) >> 2n;
+  let result = "";
+  for (let i = 0; i < 10; i++) {
+    result = alphabet[Number(value & 31n)] + result;
+    value >>= 5n;
+  }
+  return "CR" + result;
+}
 
 async function mac(reference: string, secret: string): Promise<string> {
   const raw = await crypto.subtle.digest("SHA-256", encoder.encode("monster-order-tracking-v1:" + secret));
@@ -86,12 +100,38 @@ function paidTimestamp(tx: Transaction): string | null {
 export type TrackingResult =
   | { ok: false; code: "INVALID_CODE" | "NOT_FOUND" | "UNAVAILABLE" }
   | { ok: true; status: "pending" | "approved" | "ended"; trackingCode: string;
-      product: string; address: ReturnType<typeof safeAddress>; stage: number;
+      accessCode: string; product: string; address: ReturnType<typeof safeAddress>; stage: number;
       timelineAvailable: boolean; };
 
+/** The provider's read-only list operation is the only cross-device fallback for short codes.
+ * Never send the list to the browser. An ambiguous match must never resolve to an order.
+ */
+async function resolveShortReference(code: string, secret: string): Promise<string | null | "UNAVAILABLE"> {
+  try {
+    const response = await listPixGatewayTransactions(secret);
+    const payload: unknown = await response.json();
+    if (gatewayHttpFailure(response, payload) || !Array.isArray(payload)) return "UNAVAILABLE";
+    if (payload.length > 10000) return "UNAVAILABLE";
+    let candidate: string | null = null;
+    for (const transaction of payload) {
+      const reference = record(transaction)["external_id"];
+      if (typeof reference !== "string" || !REFERENCE.test(reference)) continue;
+      if ((await shortCodeForReference(reference, secret)) === code) {
+        if (candidate) return "UNAVAILABLE";
+        candidate = reference;
+      }
+    }
+    return candidate;
+  } catch {
+    return "UNAVAILABLE";
+  }
+}
+
 export async function lookupOrderTracking(code: string, secret: string): Promise<TrackingResult> {
-  const reference = await referenceFromCode(code, secret);
-  if (!reference) return { ok: false, code: "INVALID_CODE" };
+  const short = SHORT_CODE.test(code);
+  const reference = short ? await resolveShortReference(code, secret) : await referenceFromCode(code, secret);
+  if (reference === "UNAVAILABLE") return { ok: false, code: "UNAVAILABLE" };
+  if (!reference) return { ok: false, code: short ? "NOT_FOUND" : "INVALID_CODE" };
   try {
     const response = await queryPixGateway(reference, secret);
     const payload: unknown = await response.json();
@@ -111,7 +151,8 @@ export async function lookupOrderTracking(code: string, secret: string): Promise
     return {
       ok: true,
       status,
-      trackingCode: code,
+      trackingCode: await shortCodeForReference(reference, secret),
+      accessCode: await codeForPaidReference(reference, secret),
       product: str(item["description"] ?? item["product_name"], 180) ?? "Pedido Monster",
       address: safeAddress(item),
       stage: status === "approved" ? stageForApprovedAt(timestamp) : 1,

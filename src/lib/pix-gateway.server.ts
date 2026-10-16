@@ -21,6 +21,15 @@ export async function queryPixGateway(reference: string, key: string): Promise<R
   return requestGateway(url, "GET", undefined, key);
 }
 
+/** Read-only lookup without reference filter, when supported by the provider.
+ * Used only to resolve short codes. Financial write requests are unchanged.
+ */
+export async function listPixGatewayTransactions(key: string): Promise<Response> {
+  const url = new URL("/gateway/v1/query", PIX_ENDPOINT);
+  url.searchParams.set("action", "list_transactions");
+  return requestGateway(url, "GET", undefined, key);
+}
+
 async function requestGateway(
   url: URL,
   method: string,

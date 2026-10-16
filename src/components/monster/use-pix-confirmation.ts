@@ -46,12 +46,12 @@ export function usePixConfirmation(token?: string, onApproved?: (reference: stri
           if (result.status !== "pending") {
             finished = true;
             if (result.status === "approved") {
-              if (result.tracking_code) rememberTrackingCode(result.tracking_code);
+              if (result.tracking_code) rememberTrackingCode(result.tracking_code, result.tracking_short);
               trackPurchase(result.reference, result.amount, result.attribution);
               if (result.kind === "upsell" || result.upsellEligible) {
                 approvedHandler.current?.(result.reference);
               } else if (result.tracking_code) {
-                window.location.assign("/pedido");
+                window.location.assign("/pedido?acesso=" + encodeURIComponent(result.tracking_code));
               }
             }
             else

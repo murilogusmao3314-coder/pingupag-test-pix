@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { codeForPaidReference, referenceFromCode, stageForApprovedAt } from "@/lib/order-tracking.server";
+import { codeForPaidReference, referenceFromCode, shortCodeForReference, stageForApprovedAt } from "@/lib/order-tracking.server";
 
 const secret = "unit-test-secret";
 const first = "QUIZ-12345678-1234-4123-8123-123456789abc";
@@ -18,6 +18,14 @@ describe("individual stateless tracking codes", () => {
     expect(await referenceFromCode(code, "different-secret")).toBeNull();
     expect(await referenceFromCode(code.slice(0, -1) + (code.endsWith("0") ? "1" : "0"), secret)).toBeNull();
     expect(await referenceFromCode("bad", secret)).toBeNull();
+  });
+  it("provides stable twelve-character readable identifiers for independent orders", async () => {
+    const a = await shortCodeForReference(first, secret);
+    const b = await shortCodeForReference(second, secret);
+    expect(a).toMatch(/^CR[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{10}$/);
+    expect(a).toHaveLength(12);
+    expect(a).not.toBe(b);
+    expect(await shortCodeForReference(first, secret)).toBe(a);
   });
   it("calculates elapsed complete UTC days per order and caps at six", () => {
     const now = Date.parse("2026-10-16T12:00:00.000Z");
