@@ -82,3 +82,32 @@
   .pru-benefit-mark{width:42px;height:42px}
   .pru-guarantee{width:68px;height:68px;margin:-6px -10px -6px -11px}
 }
+
+/* Custom brand marks + careful raster sizing, confined to /upsell. */
+.pru-custom-icon{display:block;width:35px;height:35px;overflow:visible}
+.pru-benefits>.pru-benefit>.pru-benefit-mark{width:47px;height:47px;border-radius:11px 5px 11px 5px;clip-path:polygon(0 0,87% 0,100% 13%,100% 100%,13% 100%,0 87%);background:linear-gradient(145deg,#293b1f 0%,#142017 60%,#0b130e 100%);border:1px solid #a6ff0054;box-shadow:inset 0 1px #dbffbe18,0 2px 12px #0004;color:#d4f4b2}
+.pru-benefits>.pru-benefit>.pru-benefit-sort{background:linear-gradient(145deg,#3a5123,#101b12 73%)}
+.pru-benefits>.pru-benefit>.pru-benefit-freight{background:linear-gradient(145deg,#213c29,#0e1810 73%)}
+.pru-benefit-freight:after{display:none}
+.pru-benefits>.pru-benefit>.pru-benefit-time{background:linear-gradient(145deg,#293f2b,#101810 73%);letter-spacing:normal}
+.pru-benefit-time small{font-size:inherit;margin:0;align-self:initial}
+.pru-visual{min-height:147px;margin:12px auto 14px;max-width:360px}
+.pru-visual:before{inset:22px 90px 12px;filter:blur(12px)}
+.pru-visual:after{bottom:7px;width:min(58%,160px);height:11px}
+.pru-package{width:128px;max-width:38%;height:auto;image-rendering:auto;filter:drop-shadow(0 8px 12px #000a)}
+.pru-visual-orbit{inset:23px 3% auto}
+.pru-visual-caption{margin-top:-2px;font-size:8px}
+.pru-payment-art{width:86px;height:86px;margin:18px auto 14px;border-radius:20px}
+.pru-payment-art img{width:76px;height:76px;object-fit:contain}
+.pru-benefits>.pru-benefit{min-height:70px;padding:10px 0}
+.pru-guarantee{width:56px;height:56px;max-width:none;margin:-3px -6px -3px -2px;image-rendering:auto;filter:drop-shadow(0 3px 7px #0005)}
+.pru-benefit-warranty p{padding-left:2px}
+@media(max-width:520px){
+  .pru-visual{min-height:132px;margin:8px auto 12px;max-width:330px}
+  .pru-package{width:112px;max-width:35%}
+  .pru-visual-orbit{inset:21px 0 auto}
+  .pru-benefits>.pru-benefit{min-height:67px;padding:9px 0;gap:11px}
+  .pru-benefits>.pru-benefit>.pru-benefit-mark{width:43px;height:43px}
+  .pru-custom-icon{width:32px;height:32px}
+  .pru-guarantee{width:51px;height:51px;margin:-3px -5px -3px -2px}
+}

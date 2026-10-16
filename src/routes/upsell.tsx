@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowRight, Clock3, PackageCheck, ShieldCheck, Truck } from "lucide-react";
+import { ArrowRight, Clock3, ShieldCheck } from "lucide-react";
 import { Payment, type PixPayment } from "@/components/monster/payment";
 import { rememberPendingPix } from "@/components/monster/pix-pending";
 import { readUpsellOffer, readUpsellPayment, rememberUpsellPayment, forgetUpsellPayment, dismissUpsellOffer, type UpsellOffer } from "@/components/monster/upsell-session";
@@ -18,6 +18,31 @@ export const Route = createFileRoute("/upsell")({
   ] }),
   component: PriorityUpsell,
 });
+
+/** Bespoke angular shipping marks for this upsell; not generic icon-library glyphs. */
+type PriorityIconKind = "sorting" | "dispatch" | "support";
+
+function PriorityIcon({ kind }: { kind: PriorityIconKind }) {
+  return <svg className="pru-custom-icon" viewBox="0 0 44 44" fill="none" aria-hidden="true" focusable="false">
+    {kind === "sorting" ? <>
+      <path d="M7 15.5 21.8 8l15 7.5-15 7.8L7 15.5Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/>
+      <path d="m7 15.5 0 14.4 14.8 7.5 0-14.1m15-7.8v14.4l-15 7.5M21.8 8v15.3" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/>
+      <path d="m11.4 9.9 4-3.5m-1.3 7.8 5-4.4" stroke="#b4f56d" strokeWidth="2.1" strokeLinecap="square"/>
+      <path d="m25.7 17.4 6.7-3.5" stroke="#b4f56d" strokeWidth="2.4" strokeLinecap="square"/>
+      <path d="m27 27 3.7-2v5.3L27 32.4V27Z" fill="#a6ff00" fillOpacity=".85"/>
+    </> : kind === "dispatch" ? <>
+      <path d="M13 11.5 23.7 6l11.2 6.4v13L23.7 32 13 25.5v-14Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/>
+      <path d="m13 11.5 10.7 6.7 11.2-5.8m-11.2 5.8V32" stroke="currentColor" strokeWidth="1.65" strokeLinejoin="round"/>
+      <path d="M4.3 20.4h12.4m-9.4 5h10.6M4.3 30.4h11.1" stroke="#bcff75" strokeWidth="2.6" strokeLinecap="square"/>
+      <path d="m28.5 35 7.8-4.2m-4.1 5.9 5.6-3" stroke="currentColor" strokeWidth="1.7" strokeLinecap="square"/>
+    </> : <>
+      <path d="M10 11.5h24v19.1H19.5l-7.4 5V30.6H10V11.5Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/>
+      <path d="M15.6 17.8h12.7" stroke="#a6ff00" strokeWidth="1.9" strokeLinecap="square"/>
+      <text x="22" y="27.2" fill="#d4ff9b" fontFamily="ui-monospace, monospace" fontSize="9.8" fontWeight="800" textAnchor="middle" letterSpacing="-.6">2H</text>
+      <path d="m32.7 6 2.1-2.1M8.6 8.4 6 5.9" stroke="#b4f56d" strokeWidth="2" strokeLinecap="square"/>
+    </>}
+  </svg>;
+}
 
 type OfferState = "checking" | "ready" | "preview" | "unavailable";
 
@@ -103,7 +128,7 @@ function PriorityUpsell() {
         <div className="pru-overline"><span className="pru-pulse" /> ÚLTIMA ETAPA ANTES DO RASTREIO</div>
         {payment ? (
           <div className="pru-payment">
-            <div className="pru-payment-art"><img src="/images/upsell-priority-box.avif" width={92} height={92} alt="Caixa de envio com identidade verde e preta" /></div>
+            <div className="pru-payment-art"><img src="/images/upsell-priority-box.avif" width={76} height={76} alt="Caixa de envio com identidade verde e preta" /></div>
             <span className="pru-eyebrow">SERVIÇO ADICIONAL · PIX SEPARADO</span>
             <h1>Confirme sua <em>prioridade.</em></h1>
             <p className="pru-lead">Este Pix de {money(UPSELL_AMOUNT)} é exclusivamente pelo serviço opcional. Seu pedido e código de rastreio original permanecem iguais.</p>
@@ -115,7 +140,7 @@ function PriorityUpsell() {
           <>
             <div className="pru-visual" aria-label="Apresentação do serviço de prioridade">
               <div className="pru-visual-orbit" aria-hidden="true"><span>PRIORIDADE</span><span>EXPEDIÇÃO</span></div>
-              <img className="pru-package" src="/images/upsell-priority-box.avif" width={192} height={192} alt="Caixa kraft personalizada com detalhes pretos e verde neon" decoding="async" fetchPriority="high" />
+              <img className="pru-package" src="/images/upsell-priority-box.avif" width={128} height={128} alt="Caixa kraft personalizada com detalhes pretos e verde neon" decoding="async" fetchPriority="high" />
               <span className="pru-visual-caption">PREPARAÇÃO COM CUIDADO EXTRA</span>
             </div>
             <span className="pru-eyebrow">ATENDIMENTO + EXPEDIÇÃO PRIORITÁRIOS</span>
@@ -123,10 +148,10 @@ function PriorityUpsell() {
             <p className="pru-lead">Adicione um cuidado extra à preparação e ao atendimento do seu pedido. Uma única contratação opcional de <strong>{money(UPSELL_AMOUNT)}</strong>.</p>
 
             <div className="pru-benefits" aria-label="Benefícios do serviço">
-              <div className="pru-benefit"><span className="pru-benefit-mark"><PackageCheck size={22} strokeWidth={1.7} /></span><p><strong>Separação prioritária</strong><small>Seu pedido ganha prioridade na fila interna de preparação.</small></p><b className="pru-benefit-id">01</b></div>
-              <div className="pru-benefit"><span className="pru-benefit-mark pru-benefit-freight"><Truck size={22} strokeWidth={1.7} /></span><p><strong>Encaminhamento prioritário</strong><small>Tratamento prioritário pela loja, sujeito à operação de envio.</small></p><b className="pru-benefit-id">02</b></div>
-              <div className="pru-benefit pru-benefit-warranty"><img className="pru-guarantee" src="/images/upsell-warranty-90d.avif" width={92} height={92} alt="Selo dourado de garantia de 90 dias" decoding="async" /><p><strong>Garantia estendida a 90 dias</strong><small>Mais cobertura sobre os produtos elegíveis do pedido.</small></p></div>
-              <div className="pru-benefit"><span className="pru-benefit-mark pru-benefit-time" aria-label="Duas horas">2<small>H</small></span><p><strong>Suporte em até 2 horas</strong><small>Prioridade na primeira resposta durante o horário de atendimento.</small></p><b className="pru-benefit-id">04</b></div>
+              <div className="pru-benefit"><span className="pru-benefit-mark pru-benefit-sort"><PriorityIcon kind="sorting" /></span><p><strong>Separação prioritária</strong><small>Seu pedido ganha prioridade na fila interna de preparação.</small></p><b className="pru-benefit-id">01</b></div>
+              <div className="pru-benefit"><span className="pru-benefit-mark pru-benefit-freight"><PriorityIcon kind="dispatch" /></span><p><strong>Encaminhamento prioritário</strong><small>Tratamento prioritário pela loja, sujeito à operação de envio.</small></p><b className="pru-benefit-id">02</b></div>
+              <div className="pru-benefit pru-benefit-warranty"><img className="pru-guarantee" src="/images/upsell-warranty-90d.avif" width={56} height={56} alt="Selo dourado de garantia de 90 dias" decoding="async" /><p><strong>Garantia estendida a 90 dias</strong><small>Mais cobertura sobre os produtos elegíveis do pedido.</small></p></div>
+              <div className="pru-benefit"><span className="pru-benefit-mark pru-benefit-time"><PriorityIcon kind="support" /></span><p><strong>Suporte em até 2 horas</strong><small>Prioridade na primeira resposta durante o horário de atendimento.</small></p><b className="pru-benefit-id">04</b></div>
             </div>
 
             <div className="pru-price-card">

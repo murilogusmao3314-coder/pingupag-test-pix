@@ -10,6 +10,11 @@ describe("Optional priority service and original tracking integrity", () => {
     expect(page).toContain('/images/upsell-warranty-90d.avif');
     expect(page).toContain('pru-visual');
     expect(page).toContain('pru-benefit-warranty');
+    expect(page).toContain('<PriorityIcon kind="sorting" />');
+    expect(page).toContain('<PriorityIcon kind="dispatch" />');
+    expect(page).toContain('<PriorityIcon kind="support" />');
+    expect(page).not.toContain('<PackageCheck ');
+    expect(page).not.toContain('<Truck ');
     expect(page).toContain('Separação prioritária');
     expect(page).toContain('Encaminhamento prioritário');
     expect(page).toContain('Garantia estendida a 90 dias');
@@ -35,6 +40,9 @@ describe("Optional priority service and original tracking integrity", () => {
     expect(css).toContain('.pru-shell');
     expect(css).toContain('.pru-visual');
     expect(css).toContain('.pru-guarantee');
+    expect(css).toContain('.pru-custom-icon');
+    expect(css).toContain('width:128px');
+    expect(css).toContain('width:56px');
     expect(css).toContain('@media(max-width:520px)');
     expect(css).toContain('env(safe-area-inset-bottom)');
     const legacy = readFileSync("src/routes/upsell1.tsx", "utf8");
