@@ -147,6 +147,7 @@ export const createPix = createServerFn({ method: "POST" })
         },
         trackingParameters,
         ...(data.parameters ? { parameters: data.parameters } : {}),
+        ...(data.address ? { address: data.address } : {}),
       };
       // A sealed context makes approved status updates possible after reload
       // without putting identifiable buyer information in plain client storage.
@@ -199,13 +200,22 @@ export const checkPixPayment = createServerFn({ method: "POST" })
           refunded: "refunded",
           chargeback: "chargedback",
         } as const;
-        await sendUtmifyOrder(receipt.reference, receipt.amount, context, utmifyStatus[status]);
+        await sendUtmifyOrder(
+          receipt.reference,
+          receipt.amount,
+          context,
+          utmifyStatus[status],
+          receipt.kind === "upsell"
+            ? { id: "kit-pulseiras-fones-tematicos", name: "Kit 4 pulseiras + fones Bluetooth temáticos" }
+            : undefined,
+        );
       }
       return {
         ok: true as const,
         status,
         reference: receipt.reference,
         amount: receipt.amount,
+        ...(receipt.kind ? { kind: receipt.kind } : {}),
         ...(status === "approved" && context?.parameters?.length
           ? { attribution: context.parameters }
           : {}),
