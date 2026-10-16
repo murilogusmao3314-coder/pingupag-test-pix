@@ -30,6 +30,14 @@ const customer = {
     utm_content: "criativo 2",
     utm_term: null,
   },
+  parameters: [
+    ["utm_source", "facebook"],
+    ["fbclid", "FB-CLICK-123"],
+    ["custom", "yes"],
+    ["tag", "one"],
+    ["tag", "two"],
+    ["empty", ""],
+  ] as [string, string][],
 };
 const fetchMock = vi.fn();
 beforeEach(() => {
@@ -89,11 +97,15 @@ describe("UTMify server orders", () => {
       trackingParameters: customer.trackingParameters,
       commission: { totalPriceInCents: 990, userCommissionInCents: 990 },
     });
+    expect(Object.keys(waiting.trackingParameters).sort())
+      .toEqual(Object.keys(customer.trackingParameters).sort());
+    expect(JSON.stringify(waiting)).not.toContain("FB-CLICK-123");
     expect(first[1].headers["x-api-token"]).toBe("test-utmify-api-token");
     expect(first[1].body).not.toContain("test-utmify-api-token");
     const result = await checkPixPayment({ data: { token: generated.tracking_token } });
     expect(result).toMatchObject({
       ok: true, status: "approved", reference: orderReference, amount: 990,
+      attribution: customer.parameters,
     });
     const submissions = fetchMock.mock.calls.filter((call) =>
       String(call[0]).includes("api.utmify.com.br"),
