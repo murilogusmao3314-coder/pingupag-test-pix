@@ -49,7 +49,7 @@ describe("Meta Pixel installation", () => {
 
   it("installs the script in the shared head and the fallback only inside noscript", () => {
     const root = readFileSync("src/routes/__root.tsx", "utf8");
-    expect(root).toMatch(/<head>[\s\S]*<script src="\/meta-pixel.js" \/>[\s\S]*<\/head>/);
+    expect(root).toMatch(/<head>[\s\S]*<script src="\/meta-pixel.js" defer \/>[\s\S]*<\/head>/);
     expect(root).toMatch(
       /<noscript>[\s\S]*facebook.com\/tr\?id=1078609691707266&ev=PageView&noscript=1[\s\S]*<\/noscript>/,
     );
