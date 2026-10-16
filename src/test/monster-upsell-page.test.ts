@@ -10,16 +10,24 @@ describe("Upsell 1 page and asset", () => {
     expect(page).toContain("SIM, QUERO O KIT POR R$ 39,90");
     expect(page).toContain("Não, obrigado");
     expect(page).toContain('disabled={state !== "ready" || pending}');
-    expect(page).toContain('src="/upsell-kit.webp"');
+    expect(page).toContain('src="/upsell-kit-hq.webp"');
+    expect(page).toContain('srcSet="/upsell-kit-hq.avif"');
+    expect(page).toContain('width={900}');
+    expect(page).toContain('height={900}');
     expect(page).toContain("O pedido original permanece pago");
     expect(page).toContain('createUpsellPix');
   });
 
-  it("ships the actual uploaded kit as a local WebP, not an external hotlink", () => {
-    const data = readFileSync("public/upsell-kit.webp");
-    expect(data.length).toBeGreaterThan(4000);
-    expect(data.toString("ascii", 0, 4)).toBe("RIFF");
-    expect(data.toString("ascii", 8, 12)).toBe("WEBP");
+  it("ships detailed 900px AVIF with high-quality WebP fallback, not the old 4.5KB thumbnail", () => {
+    const webp = readFileSync("public/upsell-kit-hq.webp");
+    const avif = readFileSync("public/upsell-kit-hq.avif");
+    expect(webp.length).toBeGreaterThan(70000);
+    expect(webp.toString("ascii", 0, 4)).toBe("RIFF");
+    expect(webp.toString("ascii", 8, 12)).toBe("WEBP");
+    expect(avif.length).toBeGreaterThan(40000);
+    expect(avif.toString("ascii", 4, 12)).toBe("ftypavif");
+    const page = readFileSync("src/routes/upsell1.tsx", "utf8");
+    expect(page).toMatch(/<picture>[\s\S]*type="image\/avif"[\s\S]*src="\/upsell-kit-hq.webp"[\s\S]*<\/picture>/);
   });
 
   it("keeps the original checkout and neon Pix action accessible on mobile", () => {
