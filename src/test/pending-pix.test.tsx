@@ -60,7 +60,7 @@ describe("Pix purchase recovery", () => {
     const onFirstPaymentApproved = vi.fn();
     rememberPendingPix(token, reference);
     checkPayment.mockResolvedValueOnce({
-      ok: true, status: "approved", reference, amount: 1894,
+      ok: true, status: "approved", reference, amount: 1894, upsellEligible: true,
     });
     const first = renderHook(() => usePendingPurchases(true, onFirstPaymentApproved));
     await waitFor(() =>
