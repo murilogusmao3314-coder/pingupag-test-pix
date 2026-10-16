@@ -15,6 +15,9 @@ describe("Optional priority service and original tracking integrity", () => {
     expect(page).toContain('Garantia estendida a 90 dias');
     expect(page).toContain('Suporte em até 2 horas');
     expect(page).toContain('Não, prefiro a fila padrão');
+    expect(page).not.toContain("Seu pedido original já foi aprovado. O rastreio independe desta oferta.");
+    expect(page).not.toContain("Não é taxa de liberação. O envio e o rastreio do pedido original continuam normalmente se você não contratar.");
+    expect(page).toContain("Após esta etapa, você acessa o rastreio do pedido com o mesmo código, aceitando ou não.");
     expect(page).toContain('SIM, QUERO PRIORIDADE POR');
     expect(page).toContain('money(UPSELL_AMOUNT)');
     expect(page).toContain('state !== "ready" || pending');

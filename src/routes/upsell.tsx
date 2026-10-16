@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowRight, Check, Clock3, PackageCheck, ShieldCheck, Truck } from "lucide-react";
+import { ArrowRight, Clock3, PackageCheck, ShieldCheck, Truck } from "lucide-react";
 import { Payment, type PixPayment } from "@/components/monster/payment";
 import { rememberPendingPix } from "@/components/monster/pix-pending";
 import { readUpsellOffer, readUpsellPayment, rememberUpsellPayment, forgetUpsellPayment, dismissUpsellOffer, type UpsellOffer } from "@/components/monster/upsell-session";
@@ -101,7 +101,6 @@ function PriorityUpsell() {
     <main className="mst pru-shell">
       <section className="pru-frame" aria-label="Oferta de serviço opcional após a compra">
         <div className="pru-overline"><span className="pru-pulse" /> ÚLTIMA ETAPA ANTES DO RASTREIO</div>
-        <div className="pru-topline"><Check size={17} aria-hidden="true" /> Seu pedido original já foi aprovado. O rastreio independe desta oferta.</div>
         {payment ? (
           <div className="pru-payment">
             <div className="pru-payment-art"><img src="/images/upsell-priority-box.avif" width={92} height={92} alt="Caixa de envio com identidade verde e preta" /></div>
@@ -132,7 +131,6 @@ function PriorityUpsell() {
 
             <div className="pru-price-card">
               <div><span>SERVIÇO ÚNICO E OPCIONAL</span><strong>{money(UPSELL_AMOUNT)}</strong></div>
-              <p>Não é taxa de liberação. O envio e o rastreio do pedido original continuam normalmente se você não contratar.</p>
             </div>
 
             {error && <div role="alert" className="pru-error">{error}</div>}
