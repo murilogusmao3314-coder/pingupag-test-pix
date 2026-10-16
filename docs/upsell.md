@@ -40,9 +40,9 @@ de cobrança única entre diferentes dispositivos nem confirmação automática
 de fulfillment interno. O controle de 1x é de sessão/navegador e o gateway
 precisa ser auditado caso o cliente abandone um Pix já gerado.
 
-Garantia estendida a 90 dias, processamento prioritário e primeira resposta
-em até 2 horas devem ser honrados pela operação real da loja; o código
-não aciona logística física nem atendimento automaticamente. O serviço
+Garantia estendida a 90 dias e processamento prioritário devem ser
+honrados pela operação real da loja; o código não aciona logística física
+automaticamente. O serviço
 **não acelera a transportadora por si só** e não pode servir como condição
 para o rastreio ou entrega do pedido pago.
 

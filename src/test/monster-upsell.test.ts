@@ -125,6 +125,44 @@ describe("Verified optional priority service", () => {
     });
   });
 
+  it("preserves the original purchase tracking code before and after an approved upsell Pix", async () => {
+    currentParentStatus = "approved";
+    const original = await checkPixPayment({ data: { token: parentToken } });
+    expect(original).toMatchObject({
+      ok: true,
+      status: "approved",
+      reference: parentRef,
+      upsellEligible: true,
+    });
+    if (!original.ok || !original.tracking_code) throw Error("Paid front tracking missing");
+
+    // The original transaction has its own tracking code BEFORE any offer charge.
+    const originalCode = original.tracking_code;
+    expect(original.tracking_short).toMatch(/^CR[A-Z2-9]{10}$/);
+
+    const optional = await createUpsellPix({ data: { parentToken } });
+    expect(optional.ok).toBe(true);
+    if (!optional.ok) throw Error("Upsell Pix not created");
+    const extra = await checkPixPayment({ data: { token: optional.tracking_token } });
+    expect(extra).toMatchObject({
+      ok: true,
+      status: "approved",
+      kind: "upsell",
+      reference: optional.order_reference,
+      amount: UPSELL_AMOUNT,
+    });
+    expect(optional.order_reference).not.toBe(parentRef);
+
+    const afterExtra = await checkPixPayment({ data: { token: parentToken } });
+    expect(afterExtra).toMatchObject({
+      ok: true,
+      status: "approved",
+      reference: parentRef,
+      tracking_code: originalCode,
+      tracking_short: original.tracking_short,
+    });
+  });
+
   it("rejects tampered receipts and never authorizes an upsell from another upsell", async () => {
     currentParentStatus = "approved";
     const tampered = await createUpsellPix({ data: { parentToken: parentToken + "x" } });

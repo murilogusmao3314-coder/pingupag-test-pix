@@ -64,8 +64,6 @@
 .pru-benefit-mark{display:grid;place-items:center;flex:none;width:46px;height:46px;border:1px solid #8cda583d;border-radius:13px;background:linear-gradient(160deg,#344326,#152218);color:#baff67;box-shadow:inset 0 1px #ffffff19}
 .pru-benefit-freight{position:relative}
 .pru-benefit-freight:after{content:"";width:13px;height:2px;position:absolute;bottom:10px;left:4px;background:#baff67;box-shadow:0 4px #baff67;opacity:.65}
-.pru-benefit-time{font-size:21px;line-height:1;font-weight:900;letter-spacing:-.06em}
-.pru-benefit-time small{font-size:10px;align-self:center;margin-left:1px}
 .pru-benefit-id{font-size:10px;color:#6c8a63;letter-spacing:.08em;font-weight:800}
 .pru-benefit-warranty{background:linear-gradient(90deg,#d9ab160d,transparent 65%)}
 .pru-guarantee{display:block;flex:none;width:74px;height:74px;object-fit:contain;margin:-6px -13px -6px -14px;filter:drop-shadow(0 4px 9px #0006)}
@@ -89,8 +87,6 @@
 .pru-benefits>.pru-benefit>.pru-benefit-sort{background:linear-gradient(145deg,#3a5123,#101b12 73%)}
 .pru-benefits>.pru-benefit>.pru-benefit-freight{background:linear-gradient(145deg,#213c29,#0e1810 73%)}
 .pru-benefit-freight:after{display:none}
-.pru-benefits>.pru-benefit>.pru-benefit-time{background:linear-gradient(145deg,#293f2b,#101810 73%);letter-spacing:normal}
-.pru-benefit-time small{font-size:inherit;margin:0;align-self:initial}
 .pru-visual{min-height:147px;margin:12px auto 14px;max-width:360px}
 .pru-visual:before{inset:22px 90px 12px;filter:blur(12px)}
 .pru-visual:after{bottom:7px;width:min(58%,160px);height:11px}

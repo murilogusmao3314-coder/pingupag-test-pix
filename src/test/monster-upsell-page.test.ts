@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 describe("Optional priority service and original tracking integrity", () => {
-  it("offers R$ 18,43 once, with four benefits, clear opt-out and no original-code mutation", () => {
+  it("offers R$ 18,43 once, with three benefits, clear opt-out and no original-code mutation", () => {
     const page = readFileSync("src/routes/upsell.tsx", "utf8");
     expect(page).toContain('createFileRoute("/upsell")');
     expect(page).toContain('Serviço opcional');
@@ -16,13 +16,15 @@ describe("Optional priority service and original tracking integrity", () => {
     expect(page).toContain('pru-benefit-warranty');
     expect(page).toContain('<PriorityIcon kind="sorting" />');
     expect(page).toContain('<PriorityIcon kind="dispatch" />');
-    expect(page).toContain('<PriorityIcon kind="support" />');
+    expect(page).not.toContain('<PriorityIcon kind="support" />');
     expect(page).not.toContain('<PackageCheck ');
     expect(page).not.toContain('<Truck ');
     expect(page).toContain('Separação prioritária');
     expect(page).toContain('Encaminhamento prioritário');
     expect(page).toContain('Garantia estendida a 90 dias');
-    expect(page).toContain('Suporte em até 2 horas');
+    expect(page).not.toMatch(/Suporte em até 2 horas|atendimento|\\b2H\\b/i);
+    expect(page).toContain('PREPARAÇÃO + EXPEDIÇÃO PRIORITÁRIAS');
+    expect((page.match(/className="pru-benefit(?:\s|")/g) ?? []).length).toBe(3);
     expect(page).toContain('Não, prefiro a fila padrão');
     expect(page).not.toContain("Seu pedido original já foi aprovado. O rastreio independe desta oferta.");
     expect(page).not.toContain("Não é taxa de liberação. O envio e o rastreio do pedido original continuam normalmente se você não contratar.");
@@ -34,6 +36,12 @@ describe("Optional priority service and original tracking integrity", () => {
     expect(page).toContain('onClick={continueToTracking}');
     expect(page).toContain('"/rastrear?acesso=" + encodeURIComponent(access)');
     expect(page).toContain('showTrackingUnlock={false}');
+    expect(page).toContain('result.status === "approved" && result.kind !== "upsell"');
+    expect(page).toContain('result.reference === saved.parentReference && result.tracking_code');
+    expect(page).toContain('(!saved.trackingAccess || saved.trackingAccess === result.tracking_code)');
+    expect(page).toContain('state !== "ready" || !offer || !accessCode || payment || pending');
+    expect(page).toContain('readUpsellOffer()?.trackingAccess');
+    expect(page).toContain('forgetUpsellPayment()');
   });
 
   it("uses a responsive isolated layout without a header, footer or forced charge", () => {

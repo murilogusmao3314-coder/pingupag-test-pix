@@ -207,7 +207,7 @@ export const checkPixPayment = createServerFn({ method: "POST" })
           context,
           utmifyStatus[status],
           receipt.kind === "upsell"
-            ? { id: "servico-expedicao-prioritaria", name: "Serviço opcional de prioridade, garantia e suporte" }
+            ? { id: "servico-expedicao-prioritaria", name: "Serviço opcional de prioridade e garantia" }
             : undefined,
         );
       }

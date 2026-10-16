@@ -14,13 +14,13 @@ export const Route = createFileRoute("/upsell")({
   head: () => ({ meta: [
     { title: "Serviço opcional de prioridade · Monster" },
     { name: "robots", content: "noindex,nofollow" },
-    { name: "description", content: "Serviço de expedição e atendimento prioritários, opcional após a compra." },
+    { name: "description", content: "Serviço de preparação e expedição prioritárias, opcional após a compra." },
   ] }),
   component: PriorityUpsell,
 });
 
 /** Bespoke angular shipping marks for this upsell; not generic icon-library glyphs. */
-type PriorityIconKind = "sorting" | "dispatch" | "support";
+type PriorityIconKind = "sorting" | "dispatch";
 
 function PriorityIcon({ kind }: { kind: PriorityIconKind }) {
   return <svg className="pru-custom-icon" viewBox="0 0 44 44" fill="none" aria-hidden="true" focusable="false">
@@ -30,16 +30,11 @@ function PriorityIcon({ kind }: { kind: PriorityIconKind }) {
       <path d="m11.4 9.9 4-3.5m-1.3 7.8 5-4.4" stroke="#b4f56d" strokeWidth="2.1" strokeLinecap="square"/>
       <path d="m25.7 17.4 6.7-3.5" stroke="#b4f56d" strokeWidth="2.4" strokeLinecap="square"/>
       <path d="m27 27 3.7-2v5.3L27 32.4V27Z" fill="#a6ff00" fillOpacity=".85"/>
-    </> : kind === "dispatch" ? <>
+    </> : <>
       <path d="M13 11.5 23.7 6l11.2 6.4v13L23.7 32 13 25.5v-14Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/>
       <path d="m13 11.5 10.7 6.7 11.2-5.8m-11.2 5.8V32" stroke="currentColor" strokeWidth="1.65" strokeLinejoin="round"/>
       <path d="M4.3 20.4h12.4m-9.4 5h10.6M4.3 30.4h11.1" stroke="#bcff75" strokeWidth="2.6" strokeLinecap="square"/>
       <path d="m28.5 35 7.8-4.2m-4.1 5.9 5.6-3" stroke="currentColor" strokeWidth="1.7" strokeLinecap="square"/>
-    </> : <>
-      <path d="M10 11.5h24v19.1H19.5l-7.4 5V30.6H10V11.5Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/>
-      <path d="M15.6 17.8h12.7" stroke="#a6ff00" strokeWidth="1.9" strokeLinecap="square"/>
-      <text x="22" y="27.2" fill="#d4ff9b" fontFamily="ui-monospace, monospace" fontSize="9.8" fontWeight="800" textAnchor="middle" letterSpacing="-.6">2H</text>
-      <path d="m32.7 6 2.1-2.1M8.6 8.4 6 5.9" stroke="#b4f56d" strokeWidth="2" strokeLinecap="square"/>
     </>}
   </svg>;
 }
@@ -217,15 +212,14 @@ function PriorityUpsell() {
               <PremiumParcel />
               <span className="pru-visual-caption">PREPARAÇÃO COM CUIDADO EXTRA</span>
             </div>
-            <span className="pru-eyebrow">ATENDIMENTO + EXPEDIÇÃO PRIORITÁRIOS</span>
+            <span className="pru-eyebrow">PREPARAÇÃO + EXPEDIÇÃO PRIORITÁRIAS</span>
             <h1>Seu pedido confirmado. <em>Quer prioridade?</em></h1>
-            <p className="pru-lead">Adicione um cuidado extra à preparação e ao atendimento do seu pedido. Uma única contratação opcional de <strong>{money(UPSELL_AMOUNT)}</strong>.</p>
+            <p className="pru-lead">Adicione um cuidado extra à preparação e à expedição do seu pedido. Uma única contratação opcional de <strong>{money(UPSELL_AMOUNT)}</strong>.</p>
 
             <div className="pru-benefits" aria-label="Benefícios do serviço">
               <div className="pru-benefit"><span className="pru-benefit-mark pru-benefit-sort"><PriorityIcon kind="sorting" /></span><p><strong>Separação prioritária</strong><small>Seu pedido ganha prioridade na fila interna de preparação.</small></p><b className="pru-benefit-id">01</b></div>
               <div className="pru-benefit"><span className="pru-benefit-mark pru-benefit-freight"><PriorityIcon kind="dispatch" /></span><p><strong>Encaminhamento prioritário</strong><small>Tratamento prioritário pela loja, sujeito à operação de envio.</small></p><b className="pru-benefit-id">02</b></div>
               <div className="pru-benefit pru-benefit-warranty"><WarrantyInsignia /><p><strong>Garantia estendida a 90 dias</strong><small>Mais cobertura sobre os produtos elegíveis do pedido.</small></p></div>
-              <div className="pru-benefit"><span className="pru-benefit-mark pru-benefit-time"><PriorityIcon kind="support" /></span><p><strong>Suporte em até 2 horas</strong><small>Prioridade na primeira resposta durante o horário de atendimento.</small></p><b className="pru-benefit-id">04</b></div>
             </div>
 
             <div className="pru-price-card">

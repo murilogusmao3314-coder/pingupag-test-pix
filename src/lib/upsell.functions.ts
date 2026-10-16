@@ -13,7 +13,7 @@ import { sendUtmifyOrder } from "./utmify-orders.server";
 export const UPSELL_AMOUNT = 1843;
 export const UPSELL_PRODUCT = {
   id: "servico-expedicao-prioritaria",
-  name: "Serviço opcional de prioridade, garantia e suporte",
+  name: "Serviço opcional de prioridade e garantia",
 } as const;
 
 /** Re-verify the original paid Pix before creating a separate optional charge.
@@ -36,7 +36,7 @@ export const createUpsellPix = createServerFn({ method: "POST" })
     if (!context?.address)
       return {
         ok: false as const,
-        error: "O endereço do pedido anterior não está disponível. Entre em contato com o suporte.",
+        error: "O endereço do pedido anterior não está disponível para esta contratação.",
       };
 
     try {
