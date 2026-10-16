@@ -52,7 +52,7 @@ describe("Meta events across the actual funnel", () => {
       ok: true,
       status: "pending",
       reference: "funnel-order",
-      amount: 4874,
+      amount: 5874,
     });
     render(<Experience />);
     fireEvent.click(screen.getByRole("button", { name: "Começar o desafio" }));
@@ -91,9 +91,9 @@ describe("Meta events across the actual funnel", () => {
     expect(events("AddToCart")).toHaveLength(3);
     expect(events("Purchase")).toHaveLength(0);
     await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: "Gerar PIX de R$ 48,74" }));
+      fireEvent.click(screen.getByRole("button", { name: "Gerar PIX de R$ 58,74" }));
     });
-    expect(events("AddPaymentInfo")[0]?.[2]).toMatchObject({ currency: "BRL", value: 48.74 });
+    expect(events("AddPaymentInfo")[0]?.[2]).toMatchObject({ currency: "BRL", value: 58.74 });
     expect(events("PixGenerated")).toHaveLength(1);
     expect(events("PixViewed")).toHaveLength(1);
     expect(events("Purchase")).toHaveLength(0);
@@ -109,7 +109,7 @@ describe("Meta events across the actual funnel", () => {
       ok: true,
       status: "approved",
       reference: "funnel-order",
-      amount: 4874,
+      amount: 5874,
     });
     await act(async () => {
       vi.advanceTimersByTime(10000);
@@ -117,7 +117,7 @@ describe("Meta events across the actual funnel", () => {
     expect(events("Purchase")).toHaveLength(1);
     expect(events("Purchase")[0]?.[2]).toMatchObject({
       currency: "BRL",
-      value: 48.74,
+      value: 58.74,
       order_id: "funnel-order",
     });
     expect(screen.getByRole("status")).toHaveTextContent("Pagamento confirmado");

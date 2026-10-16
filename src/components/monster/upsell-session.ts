@@ -5,10 +5,12 @@ const UPSELL_PAYMENT_KEY = "monster_upsell_pix_v1";
 const TTL = 24 * 60 * 60 * 1000;
 const PAYMENT_TTL = 30 * 60 * 1000;
 const referencePattern = /^QUIZ-[0-9a-f-]{36}$/;
+const trackingAccessPattern = /^MST-[0-9A-F]{32}-[0-9A-F]{24}$/;
 
 export interface UpsellOffer {
   parentReference: string;
   parentToken: string;
+  trackingAccess?: string;
   createdAt: number;
 }
 export interface UpsellPayment {
@@ -32,6 +34,7 @@ export function readUpsellOffer(): UpsellOffer | null {
       typeof offer.parentToken !== "string" ||
       offer.parentToken.length < 10 ||
       offer.parentToken.length > 8192 ||
+      (offer.trackingAccess !== undefined && !trackingAccessPattern.test(offer.trackingAccess)) ||
       !Number.isFinite(offer.createdAt) ||
       Date.now() - offer.createdAt > TTL ||
       offer.createdAt > Date.now() ||
@@ -40,17 +43,19 @@ export function readUpsellOffer(): UpsellOffer | null {
     return offer;
   } catch { return null; }
 }
-export function rememberUpsellOffer(parentToken: string, parentReference: string) {
+export function rememberUpsellOffer(parentToken: string, parentReference: string, trackingAccess?: string) {
   if (
     !referencePattern.test(parentReference) ||
     parentToken.length < 10 ||
-    parentToken.length > 8192
+    parentToken.length > 8192 ||
+    (trackingAccess !== undefined && !trackingAccessPattern.test(trackingAccess))
   ) return false;
   try {
     if (localStorage.getItem(DISMISSED_KEY) === parentReference) return false;
     localStorage.setItem(OFFER_KEY, JSON.stringify({
       parentToken,
       parentReference,
+      ...(trackingAccess ? { trackingAccess } : {}),
       createdAt: Date.now(),
     } satisfies UpsellOffer));
     return true;

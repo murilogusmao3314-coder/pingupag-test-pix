@@ -79,7 +79,7 @@ export function Checkout({
       selected ? "RemoveFromCart" : "AddToCart",
       {
         currency: "BRL",
-        value: key === "cup" ? 19.9 : 9.9,
+        value: 19.9,
         content_type: "product",
         content_ids: [id],
         num_items: 1,

@@ -17,7 +17,7 @@ export const addressSchema = z.object({
 });
 export type Shipping = "pac" | "sedex";
 export function calculateTotal(shipping:Shipping, cup:boolean, pack:boolean):number {
- return (shipping === "pac" ? 990 : 1894) + (cup ? 1990 : 0) + (pack ? 990 : 0);
+ return (shipping === "pac" ? 990 : 1894) + (cup ? 1990 : 0) + (pack ? 1990 : 0);
 }
 export function money(cents:number):string { return `R$ ${(cents/100).toFixed(2).replace(".",",")}`; }
 export type CheckoutFields = z.input<typeof customerSchema> & z.input<typeof addressSchema>;

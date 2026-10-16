@@ -82,14 +82,14 @@ afterEach(() => {
   vi.unstubAllEnvs();
 });
 
-describe("Verified optional Upsell 1", () => {
+describe("Verified optional priority service", () => {
   it("never creates a new Pix before the original is approved", async () => {
     const response = await createUpsellPix({ data: { parentToken } });
     expect(response).toMatchObject({ ok: false });
     expect(fetchMock.mock.calls.filter(([url]) => String(url).includes("/transaction"))).toHaveLength(0);
   });
 
-  it("charges precisely R$ 39,90 with a separate reference and reuses encrypted delivery", async () => {
+  it("charges precisely R$ 28,63 with a separate reference and reuses encrypted delivery", async () => {
     currentParentStatus = "approved";
     const result = await createUpsellPix({ data: { parentToken } });
     expect(result).toMatchObject({ ok: true, qr_code: "upsell-mock-pix" });
@@ -101,7 +101,7 @@ describe("Verified optional Upsell 1", () => {
     const body = JSON.parse(String(transaction![1].body));
     expect(body).toMatchObject({
       amount: UPSELL_AMOUNT,
-      description: UPSELL_PRODUCT.name,
+      description: `${UPSELL_PRODUCT.name} para o pedido ${parentRef}`,
       reference: latestReference,
       customer: context.customer,
       address: context.address,
@@ -112,7 +112,7 @@ describe("Verified optional Upsell 1", () => {
     expect(await verifyPixReceipt(result.tracking_token, secret)).toMatchObject({
       kind: "upsell",
       reference: result.order_reference,
-      amount: 3990,
+      amount: 2863,
     });
     const confirmed = await checkPixPayment({ data: { token: result.tracking_token } });
     expect(confirmed).toMatchObject({

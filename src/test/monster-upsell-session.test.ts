@@ -19,10 +19,12 @@ beforeEach(() => {
 
 describe("Upsell offer continuation", () => {
   it("stores only short-lived opaque first-purchase authorization", () => {
-    expect(rememberUpsellOffer(parentToken, parentRef)).toBe(true);
+    const access = "MST-" + "A".repeat(32) + "-" + "B".repeat(24);
+    expect(rememberUpsellOffer(parentToken, parentRef, access)).toBe(true);
     expect(readUpsellOffer()).toMatchObject({
       parentToken,
       parentReference: parentRef,
+      trackingAccess: "MST-" + "A".repeat(32) + "-" + "B".repeat(24),
     });
     expect(localStorage.getItem("monster_upsell_offer_v1")).not.toMatch(/cpf|email|address|name/i);
     expect(rememberUpsellOffer(parentToken, "not-a-reference")).toBe(false);

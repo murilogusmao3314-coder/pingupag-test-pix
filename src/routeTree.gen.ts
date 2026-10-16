@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as Upsell1RouteImport } from './routes/upsell1'
+import { Route as UpsellRouteImport } from './routes/upsell'
 import { Route as PedidoRouteImport } from './routes/pedido'
 import { Route as RastrearRouteImport } from './routes/rastrear'
 import { Route as PrevisualizarRastreioRouteImport } from './routes/previsualizar-rastreio'
@@ -18,6 +19,11 @@ import { Route as PrevisualizarRastreioRouteImport } from './routes/previsualiza
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UpsellRoute = UpsellRouteImport.update({
+  id: '/upsell',
+  path: '/upsell',
   getParentRoute: () => rootRouteImport,
 } as any)
 const Upsell1Route = Upsell1RouteImport.update({
@@ -45,6 +51,9 @@ const PrevisualizarRastreioRoute = PrevisualizarRastreioRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/upsell': typeof UpsellRoute
+  '/upsell': typeof UpsellRoute
+  '/upsell': typeof UpsellRoute
   '/upsell1': typeof Upsell1Route
   '/pedido': typeof PedidoRoute
   '/rastrear': typeof RastrearRoute
@@ -67,14 +76,15 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/upsell1' | '/pedido' | '/rastrear' | '/previsualizar-rastreio'
+  fullPaths: '/' | '/upsell' | '/upsell1' | '/pedido' | '/rastrear' | '/previsualizar-rastreio'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/upsell1' | '/pedido' | '/rastrear' | '/previsualizar-rastreio'
-  id: '__root__' | '/' | '/upsell1' | '/pedido' | '/rastrear' | '/previsualizar-rastreio'
+  to: '/' | '/upsell' | '/upsell1' | '/pedido' | '/rastrear' | '/previsualizar-rastreio'
+  id: '__root__' | '/' | '/upsell' | '/upsell1' | '/pedido' | '/rastrear' | '/previsualizar-rastreio'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  UpsellRoute: typeof UpsellRoute
   Upsell1Route: typeof Upsell1Route
   PedidoRoute: typeof PedidoRoute
   RastrearRoute: typeof RastrearRoute
@@ -88,6 +98,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/upsell': {
+      id: '/upsell'
+      path: '/upsell'
+      fullPath: '/upsell'
+      preLoaderRoute: typeof UpsellRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/upsell1': {
@@ -123,6 +140,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  UpsellRoute: UpsellRoute,
   Upsell1Route: Upsell1Route,
   PedidoRoute: PedidoRoute,
   RastrearRoute: RastrearRoute,

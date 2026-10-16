@@ -19,6 +19,7 @@ export function Payment({
   amount,
   onApproved,
   showBack = true,
+  showTrackingUnlock = true,
 }: {
   payment: PixPayment;
   onBack?: () => void;
@@ -26,6 +27,7 @@ export function Payment({
   amount?: number;
   onApproved?: (reference: string) => void;
   showBack?: boolean;
+  showTrackingUnlock?: boolean;
 }) {
   const { status, unavailable } = usePixConfirmation(payment.tracking_token, onApproved);
   useEffect(() => {
@@ -96,13 +98,13 @@ export function Payment({
           {error}
         </p>
       )}
-      <section className="mst-locked-track" aria-label="Código de acompanhamento bloqueado">
+      {showTrackingUnlock && <section className="mst-locked-track" aria-label="Código de acompanhamento bloqueado">
         <div className="mst-locked-track-head"><LockKeyhole size={16} aria-hidden="true" /><strong>Acompanhamento do pedido</strong></div>
         <div className="mst-locked-track-code" aria-label="Código CR bloqueado até a confirmação do pagamento">
           <span>CR</span><span className="mst-track-obscured" aria-hidden="true">XXXXXXXXXX</span>
         </div>
         <p>O código completo de acompanhamento será liberado somente após a confirmação real do pagamento.</p>
-      </section>
+      </section>}
       <div className="mst-watch" role="status">
         {status === "approved"
           ? "Pagamento confirmado"

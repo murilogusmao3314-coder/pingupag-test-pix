@@ -207,7 +207,7 @@ export const checkPixPayment = createServerFn({ method: "POST" })
           context,
           utmifyStatus[status],
           receipt.kind === "upsell"
-            ? { id: "kit-pulseiras-fones-tematicos", name: "Kit 4 pulseiras + fones Bluetooth temáticos" }
+            ? { id: "servico-expedicao-prioritaria", name: "Serviço opcional de prioridade, garantia e suporte" }
             : undefined,
         );
       }

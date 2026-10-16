@@ -1,0 +1,48 @@
+/* Isolated priority offer page; does not change the checkout or the tracking page. */
+.pru-shell{min-height:100dvh;background:radial-gradient(ellipse at 50% -15%,#203510 0%,transparent 56%),#07090a;font-family:Inter,system-ui,sans-serif;overflow-x:clip;padding:clamp(20px,4vw,44px) 14px calc(42px + env(safe-area-inset-bottom))}
+.pru-shell *{box-sizing:border-box}
+.pru-frame{max-width:620px;margin:0 auto}
+.pru-overline{display:flex;align-items:center;justify-content:center;gap:10px;font-size:10px;letter-spacing:.15em;font-weight:800;color:#d0ebaa;padding-bottom:21px}
+.pru-pulse{width:9px;height:9px;background:#a6ff00;border-radius:50%;box-shadow:0 0 0 5px #a6ff0020}
+.pru-topline{display:flex;justify-content:center;align-items:flex-start;gap:10px;background:#a6ff000e;border:1px solid #a6ff0040;padding:12px;border-radius:11px;text-align:center;font-size:12px;line-height:1.5;color:#d3ecc5}
+.pru-topline svg{flex:none;color:#a6ff00}
+.pru-symbol{display:grid;place-items:center;width:72px;height:72px;margin:28px auto 17px;background:linear-gradient(150deg,#263a1b,#111a0e);color:#b5ff43;border:1px solid #89d52566;border-radius:22px}
+.pru-eyebrow{display:block;color:#a6ff00;text-align:center;font-size:10px;font-weight:800;letter-spacing:.18em}
+.pru-frame h1{font-size:clamp(33px,6.8vw,52px);font-weight:850;letter-spacing:-.055em;line-height:1.09;text-wrap:balance;text-align:center;margin:13px auto 15px;color:#f2f7ec}
+.pru-frame h1 em{font-style:normal;color:#a6ff00}
+.pru-lead{text-align:center;color:#bac6b6;font-size:15px;line-height:1.7;margin:0 auto 26px;max-width:520px}
+.pru-lead strong{color:#e7ffd0}
+.pru-benefits{border:1px solid #374234;background:linear-gradient(135deg,#171d18,#101413);border-radius:20px;padding:8px 21px;margin:0 auto 22px}
+.pru-benefits>div{display:flex;align-items:center;gap:15px;padding:15px 0}
+.pru-benefits>div+div{border-top:1px solid #ffffff16}
+.pru-benefits>div>span{display:grid;place-items:center;flex:none;width:44px;height:44px;border-radius:12px;background:#a6ff0014;border:1px solid #a6ff0030;color:#b9ff4f}
+.pru-benefits p{min-width:0;margin:0}
+.pru-benefits strong{display:block;color:#f0f7e9;font-size:14px;font-weight:750}
+.pru-benefits small{display:block;color:#aab8aa;font-size:12px;line-height:1.6;margin-top:2px}
+.pru-price-card{background:linear-gradient(120deg,#1c2b11,#11200c);border:1px solid #8dbb4a80;border-radius:17px;padding:18px 20px;margin:16px 0}
+.pru-price-card>div{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.pru-price-card span{font-size:10px;letter-spacing:.1em;font-weight:800;color:#c7e8aa}
+.pru-price-card strong{font-size:clamp(28px,5vw,36px);font-weight:900;color:#b5ff43;letter-spacing:-.05em;white-space:nowrap}
+.pru-price-card p{margin:8px 0 0;color:#bed0b4;font-size:12px;line-height:1.65}
+.pru-cta{display:flex;align-items:center;justify-content:center;gap:13px;width:100%;min-height:58px;padding:13px 17px;border:0;border-radius:13px;background:#a6ff00;color:#101c08;font-size:14px;font-weight:850;letter-spacing:.012em;cursor:pointer;box-shadow:0 14px 37px #a6ff0027;transition:filter .2s,transform .2s}
+.pru-cta:hover:not(:disabled){filter:brightness(1.08);transform:translateY(-1px)}
+.pru-cta:disabled{opacity:.55;cursor:not-allowed;box-shadow:none}
+.pru-decline{display:block;max-width:100%;margin:17px auto 0;border:0;background:transparent;color:#b1bcb2;text-decoration:underline;text-underline-offset:4px;cursor:pointer;padding:9px;font-size:13px}
+.pru-decline:hover{color:white}
+.pru-cta:focus-visible,.pru-decline:focus-visible{outline:3px solid #9be14d;outline-offset:3px}
+.pru-after{display:flex;align-items:center;justify-content:center;gap:9px;margin:18px auto 0;text-align:center;color:#d3e1ce;font-size:12px;line-height:1.6}
+.pru-after svg{flex:none;color:#a6ff00}
+.pru-security{display:flex;align-items:center;justify-content:center;gap:8px;border-top:1px solid #ffffff20;margin:27px auto 0;padding:19px 0 0;text-align:center;font-size:11px;color:#96a894}
+.pru-security svg{flex:none;color:#a6ff00}
+.pru-status,.pru-error{padding:13px;border-radius:10px;line-height:1.6;font-size:12px;text-align:center}
+.pru-status{background:#20271c;border:1px solid #556443;color:#d5e3cf}
+.pru-error{background:#321a18;border:1px solid #8f433c;color:#ffd1c9;margin:16px 0}
+.pru-payment{text-align:center}
+.pru-payment .mst-pix-action{position:relative;margin:18px 0;padding:0}
+.pru-payment .mst-pix-action-row{position:static}
+.pru-payment .mst-pix-code{width:100%;min-width:0}
+.pru-payment .mst-pix-steps{text-align:left}
+.pru-payment .mst-totals,.pru-payment .mst-disclosure{color:#c4d0c2}
+.pru-information{font-size:12px;color:#a7b9a4;line-height:1.65;margin:22px auto 0}
+@media(max-width:520px){.pru-shell{padding:20px 12px calc(35px + env(safe-area-inset-bottom))}.pru-benefits{padding:3px 15px}.pru-benefits>div{gap:10px}.pru-price-card{padding:16px}.pru-price-card>div{align-items:baseline}.pru-price-card span{font-size:9px}.pru-after{align-items:flex-start}.pru-overline{font-size:9px}}
+@media(prefers-reduced-motion:reduce){.pru-shell *{transition:none!important}}

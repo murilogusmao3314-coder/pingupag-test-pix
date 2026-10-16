@@ -1,43 +1,48 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
-describe("Upsell 1 page and asset", () => {
-  it("contains the requested amount, kit, direct preview URL and clear optional choices", () => {
-    const page = readFileSync("src/routes/upsell1.tsx", "utf8");
-    expect(page).toContain('createFileRoute("/upsell1")');
-    expect(page).toContain("4 PULSEIRAS");
-    expect(page).toContain("FONES SEM FIO");
-    expect(page).toContain("SIM, QUERO O KIT POR R$ 39,90");
-    expect(page).toContain("Não, obrigado");
-    expect(page).toContain('disabled={state !== "ready" || pending}');
-    expect(page).toContain('src="/images/upsell-kit-hq.webp"');
-    expect(page).toContain('srcSet="/images/upsell-kit-hq.avif"');
-    expect(page).toContain('width={900}');
-    expect(page).toContain('height={900}');
-    expect(page).toContain("O pedido original permanece pago");
-    expect(page).toContain('createUpsellPix');
+describe("Optional priority service and original tracking integrity", () => {
+  it("offers R$ 28,63 once, with four benefits, clear opt-out and no original-code mutation", () => {
+    const page = readFileSync("src/routes/upsell.tsx", "utf8");
+    expect(page).toContain('createFileRoute("/upsell")');
+    expect(page).toContain('Serviço opcional');
+    expect(page).toContain('Separação prioritária');
+    expect(page).toContain('Encaminhamento prioritário');
+    expect(page).toContain('Garantia estendida a 90 dias');
+    expect(page).toContain('Suporte em até 2 horas');
+    expect(page).toContain('Não, prefiro a fila padrão');
+    expect(page).toContain('SIM, QUERO PRIORIDADE POR');
+    expect(page).toContain('money(UPSELL_AMOUNT)');
+    expect(page).toContain('state !== "ready" || pending');
+    expect(page).toContain('onApproved={continueToTracking}');
+    expect(page).toContain('onClick={continueToTracking}');
+    expect(page).toContain('"/rastrear?acesso=" + encodeURIComponent(access)');
+    expect(page).toContain('showTrackingUnlock={false}');
   });
 
-  it("ships detailed 900px AVIF with high-quality WebP fallback, not the old 4.5KB thumbnail", () => {
-    const webp = readFileSync("public/images/upsell-kit-hq.webp");
-    const avif = readFileSync("public/images/upsell-kit-hq.avif");
-    expect(webp.length).toBeGreaterThan(70000);
-    expect(webp.toString("ascii", 0, 4)).toBe("RIFF");
-    expect(webp.toString("ascii", 8, 12)).toBe("WEBP");
-    expect(avif.length).toBeGreaterThan(40000);
-    expect(avif.toString("ascii", 4, 12)).toBe("ftypavif");
-    const page = readFileSync("src/routes/upsell1.tsx", "utf8");
-    expect(page).toMatch(/<picture>[\s\S]*type="image\/avif"[\s\S]*src="\/images\/upsell-kit-hq.webp"[\s\S]*<\/picture>/);
+  it("uses a responsive isolated layout without a header, footer or forced charge", () => {
+    const page = readFileSync("src/routes/upsell.tsx", "utf8");
+    const css = readFileSync("src/routes/upsell.css", "utf8");
+    expect(page).not.toMatch(/<header\b|<footer\b|<nav\b/i);
+    expect(page).not.toContain('createPix(');
+    expect(css).toContain('.pru-shell');
+    expect(css).toContain('@media(max-width:520px)');
+    expect(css).toContain('env(safe-area-inset-bottom)');
+    const legacy = readFileSync("src/routes/upsell1.tsx", "utf8");
+    expect(legacy).toContain('<Navigate to="/upsell" replace />');
+    expect(legacy).not.toContain('FONES SEM FIO');
   });
 
-  it("keeps the original checkout and neon Pix action accessible on mobile", () => {
-    const css = readFileSync("src/styles.css", "utf8");
-    expect(css).toContain(".mst-upsell-shell");
-    expect(css).toContain(".mst-upsell-payment .mst-pix-action");
-    expect(css).toContain("env(safe-area-inset-bottom)");
-    expect(css).toContain("@media (max-width:390px)");
-    const root = readFileSync("src/routes/index.tsx", "utf8");
-    expect(root).toContain('window.location.assign("/upsell1")');
-    expect(root).toContain("onFirstPaymentApproved={showFirstUpsell}");
+  it("stores front tracking before the upsell redirect and keeps the live tracker separate", () => {
+    const index = readFileSync("src/routes/index.tsx", "utf8");
+    const hook = readFileSync("src/components/monster/use-pix-confirmation.ts", "utf8");
+    const page = readFileSync("src/routes/upsell.tsx", "utf8");
+    const tracker = readFileSync("src/routes/rastrear.tsx", "utf8");
+    expect(hook).toContain('result.kind !== "upsell" && result.tracking_code');
+    expect(index).toContain('rememberUpsellOffer(token, reference, originalAccess)');
+    expect(index).toContain('window.location.assign("/upsell")');
+    expect(page).toContain('trackingAccess === result.tracking_code');
+    expect(page).toContain('dismissUpsellOffer(offer.parentReference)');
+    expect(tracker).toContain('component: TrackingPage');
   });
 });

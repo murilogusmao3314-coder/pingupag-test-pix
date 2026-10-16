@@ -10,10 +10,10 @@ import { verifyPixReceipt, verifiedPixStatus, signPixReceipt } from "./pix-recei
 import { openUtmifyContext, sealUtmifyContext } from "./utmify-envelope.server";
 import { sendUtmifyOrder } from "./utmify-orders.server";
 
-export const UPSELL_AMOUNT = 3990;
+export const UPSELL_AMOUNT = 2863;
 export const UPSELL_PRODUCT = {
-  id: "kit-pulseiras-fones-tematicos",
-  name: "Kit 4 pulseiras + fones Bluetooth com estojo temático",
+  id: "servico-expedicao-prioritaria",
+  name: "Serviço opcional de prioridade, garantia e suporte",
 } as const;
 
 /** Re-verify the original paid Pix before creating a separate optional charge.
@@ -61,7 +61,7 @@ export const createUpsellPix = createServerFn({ method: "POST" })
       const response = await requestPixGateway(
         JSON.stringify({
           amount: UPSELL_AMOUNT,
-          description: UPSELL_PRODUCT.name,
+          description: `${UPSELL_PRODUCT.name} para o pedido ${parent.reference}`,
           reference,
           source: "api_externa",
           customer: context.customer,

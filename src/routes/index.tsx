@@ -6,6 +6,7 @@ import { Prize, ResultSections } from "@/components/monster/result-sections";
 import { Checkout } from "@/components/monster/checkout";
 import { usePendingPurchases } from "@/components/monster/use-pending-purchases";
 import { rememberUpsellOffer } from "@/components/monster/upsell-session";
+import { recentTrackingCodes } from "@/components/monster/tracking-client";
 import { assets } from "@/components/monster/assets";
 import { cn } from "@/lib/utils";
 import { trackMeta, orderMeta } from "@/lib/meta-events";
@@ -48,9 +49,16 @@ function MonsterExperience() {
   const [selecting, setSelecting] = useState(false);
   const [checkout, setCheckout] = useState(false);
   function showFirstUpsell(token: string, reference: string) {
-    // Preserve the optional upsell invitation, but show the payment confirmation first.
-    rememberUpsellOffer(token, reference);
-    window.location.assign("/pedido");
+    // The paid front's signed tracking capability was stored before this callback.
+    const originalAccess = recentTrackingCodes()[0];
+    if (originalAccess && rememberUpsellOffer(token, reference, originalAccess)) {
+      window.location.assign("/upsell");
+    } else {
+      // Never block the already-paid original order when local storage is unavailable.
+      window.location.assign(originalAccess
+        ? "/rastrear?acesso=" + encodeURIComponent(originalAccess)
+        : "/pedido");
+    }
   }
   usePendingPurchases(!checkout, showFirstUpsell);
   const [deadline, setDeadline] = useState<number | null>(null);
