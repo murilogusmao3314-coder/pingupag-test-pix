@@ -67,11 +67,13 @@ type TagWindow = Window & {
   };
 };
 const sentToTagManager = new Set<string>();
-function attributionSnapshot() {
+function attributionSnapshot(orderParameters?: [string, string][]) {
   const tracking = (window as TagWindow).TrackingParams;
   let params: URLSearchParams;
   try {
-    params = tracking?.getParameters() ?? new URLSearchParams(window.location.search);
+    params = orderParameters
+      ? new URLSearchParams(orderParameters)
+      : tracking?.getParameters() ?? new URLSearchParams(window.location.search);
   } catch {
     params = new URLSearchParams(window.location.search);
   }
@@ -100,7 +102,7 @@ function attributionSnapshot() {
     first_touch: tracking?.getFirstTouch?.() ?? null,
   };
 }
-function trackTagManagerPurchase(reference: string, amount: number) {
+function trackTagManagerPurchase(reference: string, amount: number, parameters?: [string, string][]) {
   if (sentToTagManager.has(reference)) return;
   try {
     const win = window as TagWindow;
@@ -110,7 +112,7 @@ function trackTagManagerPurchase(reference: string, amount: number) {
       transaction_id: reference,
       ecommerce: { transaction_id: reference, value: amount / 100, currency: "BRL" },
       payment_method: "pix",
-      attribution: attributionSnapshot(),
+      attribution: attributionSnapshot(parameters),
     });
     sentToTagManager.add(reference);
   } catch {
@@ -118,11 +120,11 @@ function trackTagManagerPurchase(reference: string, amount: number) {
   }
 }
 
-export function trackPurchase(reference: string, amount: number) {
+export function trackPurchase(reference: string, amount: number, parameters?: [string, string][]) {
   trackMeta(
     "Purchase",
     { currency: "BRL", value: amount / 100, order_id: reference, payment_method: "pix" },
     { key: reference, persistent: true },
   );
-  if (typeof window !== "undefined") trackTagManagerPurchase(reference, amount);
+  if (typeof window !== "undefined") trackTagManagerPurchase(reference, amount, parameters);
 }
