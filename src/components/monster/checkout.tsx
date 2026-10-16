@@ -24,8 +24,10 @@ import { getCheckoutAttribution } from "@/lib/utmify-tracking";
 export function Checkout({
   onClose,
   remaining = 600,
+  onFirstPaymentApproved,
 }: {
   onClose: () => void;
+  onFirstPaymentApproved?: (token: string, reference: string) => void;
   remaining?: number;
 }) {
   const checkoutId = useId();
@@ -201,6 +203,11 @@ export function Checkout({
               <Payment
                 payment={payment}
                 onBack={() => setPayment(null)}
+                onApproved={(reference) => {
+                  if (payment.tracking_token) {
+                    onFirstPaymentApproved?.(payment.tracking_token, reference);
+                  }
+                }}
                 amount={total}
                 summary={<Totals shipping={shipping} cup={cup} pack={pack} />}
               />
