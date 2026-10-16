@@ -11,7 +11,7 @@ type Browser = { window: BrowserWindow };
 const { JSDOM } = createRequire(`${process.cwd()}/package.json`)("jsdom") as {
   JSDOM: new (html: string, options: { url: string; runScripts: string }) => Browser;
 };
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 const source = readFileSync("public/tracking-params.js", "utf8");
 const KEY = "tracking_params_v1";
@@ -199,6 +199,17 @@ describe("URL parameter continuity", () => {
     expect(new URL(String(calls[0]![0])).searchParams.get("abc")).toBe("123");
     expect(calls[0]!.slice(1)).toEqual(["_blank", "noopener"]);
     expect(source).not.toMatch(/(?:window\.)?(?:fetch|XMLHttpRequest)\s*=/);
+  });
+
+  it("does not re-scan links when only countdown text changes", async () => {
+    const win = browser("?utm_source=organic", '<div id="counter">10</div><a href="/next">Next</a>');
+    await settle();
+    const link = win.document.querySelector("a")!;
+    const spy = vi.spyOn(link, "getAttribute");
+    win.document.getElementById("counter")!.textContent = "09";
+    await settle();
+    expect(spy).not.toHaveBeenCalled();
+    spy.mockRestore();
   });
 
   it("does not write storage in response to another tab or duplicate installation", async () => {
