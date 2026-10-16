@@ -6,7 +6,9 @@ import { forgetPendingPix } from "./pix-pending";
 
 export function usePixConfirmation(token?: string, onApproved?: (reference: string) => void) {
   const approvedHandler = useRef(onApproved);
-  approvedHandler.current = onApproved;
+  useEffect(() => {
+    approvedHandler.current = onApproved;
+  }, [onApproved]);
   const checkPayment = useServerFn(checkPixPayment);
   const [status, setStatus] = useState("pending");
   const [unavailable, setUnavailable] = useState(false);
