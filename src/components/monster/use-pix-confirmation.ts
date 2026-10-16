@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { checkPixPayment } from "@/lib/pix.functions";
 import { trackMeta, trackPurchase } from "@/lib/meta-events";
 import { forgetPendingPix } from "./pix-pending";
 
-export function usePixConfirmation(token?: string) {
+export function usePixConfirmation(token?: string, onApproved?: (reference: string) => void) {
+  const approvedHandler = useRef(onApproved);
+  approvedHandler.current = onApproved;
   const checkPayment = useServerFn(checkPixPayment);
   const [status, setStatus] = useState("pending");
   const [unavailable, setUnavailable] = useState(false);
@@ -40,7 +42,10 @@ export function usePixConfirmation(token?: string) {
           setStatus(result.status);
           if (result.status !== "pending") {
             finished = true;
-            if (result.status === "approved") trackPurchase(result.reference, result.amount, result.attribution);
+            if (result.status === "approved") {
+              trackPurchase(result.reference, result.amount, result.attribution);
+              approvedHandler.current?.(result.reference);
+            }
             else
               trackMeta(
                 "PixPaymentEnded",
