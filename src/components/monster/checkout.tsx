@@ -19,6 +19,7 @@ import { CustomerFields, AddressFields } from "./checkout-fields";
 import { useCepLookup } from "./use-cep-lookup";
 import { ShippingOptions, Extras, Totals, Seals } from "./order";
 import { Payment, type PixPayment } from "./payment";
+import { rememberPendingPix } from "./pix-pending";
 export function Checkout({
   onClose,
   remaining = 600,
@@ -150,6 +151,7 @@ export function Checkout({
         },
       });
       if (result.ok) {
+        rememberPendingPix(result.tracking_token, result.order_reference);
         trackMeta(
           "PixGenerated",
           { ...orderMeta(total, cup, pack), payment_method: "pix" },
