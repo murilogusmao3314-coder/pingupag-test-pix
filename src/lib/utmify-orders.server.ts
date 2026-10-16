@@ -1,0 +1,75 @@
+import { z } from "zod";
+import { utmifyKeys } from "./utmify-tracking";
+
+export const utmifyTrackingSchema = z.object(
+  Object.fromEntries(utmifyKeys.map((key) => [key, z.string().max(500).nullable()])) as
+    Record<(typeof utmifyKeys)[number], z.ZodNullable<z.ZodString>>,
+).strict();
+
+export const utmifyOrderContextSchema = z.object({
+  createdAt: z.string().datetime(),
+  customer: z.object({
+    name: z.string().min(2).max(120),
+    email: z.string().email().max(200),
+    phone: z.string().regex(/^\d{10,11}$/),
+    document: z.string().regex(/^\d{11,14}$/),
+  }).strict(),
+  trackingParameters: utmifyTrackingSchema,
+}).strict();
+
+export type UtmifyOrderContext = z.infer<typeof utmifyOrderContextSchema>;
+
+export function utcDateTime(date: string) {
+  return new Date(date).toISOString().slice(0, 19).replace("T", " ");
+}
+
+/** Send full order status from the server only; no API credential is exposed to the browser. */
+export async function sendUtmifyOrder(
+  reference: string,
+  amount: number,
+  context: UtmifyOrderContext,
+  status: "waiting_payment" | "paid" | "refused" | "refunded" | "chargedback",
+): Promise<boolean> {
+  const token = process.env["UTMIFY_API_TOKEN"]?.trim();
+  if (!token || /[\r\n]/.test(token)) return false;
+  const now = new Date().toISOString();
+  const body = {
+    orderId: reference,
+    platform: "PinguPag",
+    paymentMethod: "pix",
+    status,
+    createdAt: utcDateTime(context.createdAt),
+    approvedDate: status === "paid" ? utcDateTime(now) : null,
+    refundedAt: status === "refunded" ? utcDateTime(now) : null,
+    customer: { ...context.customer, country: "BR" },
+    products: [{
+      id: "monster-cup-1150-order",
+      name: "Pedido Monster 1,15L (envio e adicionais)",
+      planId: null,
+      planName: null,
+      quantity: 1,
+      priceInCents: amount,
+    }],
+    trackingParameters: context.trackingParameters,
+    commission: {
+      totalPriceInCents: amount,
+      gatewayFeeInCents: 0,
+      userCommissionInCents: amount,
+      currency: "BRL",
+    },
+  };
+  try {
+    const response = await fetch("https://api.utmify.com.br/api-credentials/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-api-token": token },
+      body: JSON.stringify(body),
+      redirect: "error",
+      signal: AbortSignal.timeout(2500),
+    });
+    if (!response.ok) console.warn("[utmify] Order status not accepted:", response.status);
+    return response.ok;
+  } catch {
+    console.warn("[utmify] Order status could not be delivered");
+    return false;
+  }
+}
