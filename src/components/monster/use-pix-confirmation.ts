@@ -40,7 +40,7 @@ export function usePixConfirmation(token?: string) {
           setStatus(result.status);
           if (result.status !== "pending") {
             finished = true;
-            if (result.status === "approved") trackPurchase(result.reference, result.amount);
+            if (result.status === "approved") trackPurchase(result.reference, result.amount, result.attribution);
             else
               trackMeta(
                 "PixPaymentEnded",
