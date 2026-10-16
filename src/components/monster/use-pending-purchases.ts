@@ -7,7 +7,9 @@ import { forgetPendingPix, readPendingPix } from "./pix-pending";
 /** Recover confirmed purchases when a visitor returns after leaving the Pix screen. */
 export function usePendingPurchases(enabled: boolean, onFirstPaymentApproved?: (token: string, reference: string) => void) {
   const approvedHandler = useRef(onFirstPaymentApproved);
-  approvedHandler.current = onFirstPaymentApproved;
+  useEffect(() => {
+    approvedHandler.current = onFirstPaymentApproved;
+  }, [onFirstPaymentApproved]);
   const checkPayment = useServerFn(checkPixPayment);
   useEffect(() => {
     if (!enabled || typeof document === "undefined") return;
