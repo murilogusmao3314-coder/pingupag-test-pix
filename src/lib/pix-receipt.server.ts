@@ -4,6 +4,7 @@ const receiptSchema = z.object({
   reference: z.string().regex(/^QUIZ-[0-9a-f-]{36}$/),
   amount: z.number().int().min(100).max(10000000),
   expiresAt: z.number().int().positive(),
+  utmifyEnvelope: z.string().max(6000).optional(),
 });
 export type PixReceipt = z.infer<typeof receiptSchema>;
 const encoder = new TextEncoder();
@@ -25,11 +26,12 @@ async function signingKey(secret: string) {
 }
 
 /** Signed capability: allows reading only this new order, with no customer data. */
-export async function signPixReceipt(reference: string, amount: number, secret: string) {
+export async function signPixReceipt(reference: string, amount: number, secret: string, utmifyEnvelope?: string) {
   const receipt = receiptSchema.parse({
     reference,
     amount,
     expiresAt: Date.now() + 24 * 60 * 60 * 1000,
+    ...(utmifyEnvelope ? { utmifyEnvelope } : {}),
   });
   const data = encode(encoder.encode(JSON.stringify(receipt)));
   const signature = await crypto.subtle.sign(
