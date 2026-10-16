@@ -443,6 +443,7 @@ body{margin:0;background:var(--mst-bg);color:var(--mst-ink)}
   background: #0d1309;
   box-shadow: 0 14px 50px rgb(0 0 0 / 35%), 0 0 26px rgb(166 255 0 / 10%);
 }
+.mst-upsell-image picture{display:block;width:100%;line-height:0}
 .mst-upsell-image img {display:block;width:100%;height:auto;aspect-ratio:1;object-fit:cover}
 .mst-upsell-photo-tag {
   position: absolute;
