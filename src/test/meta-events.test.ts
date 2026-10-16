@@ -67,6 +67,39 @@ describe("Meta funnel event safety", () => {
     });
     expect(JSON.stringify(dataLayer)).not.toContain("private@example.invalid");
   });
+  it("attributes a verified purchase to the original order, not a later URL visit", async () => {
+    const dataLayer: Record<string, unknown>[] = [];
+    vi.stubGlobal("dataLayer", dataLayer);
+    vi.stubGlobal("fbq", vi.fn());
+    vi.stubGlobal("TrackingParams", {
+      getParameters: () => new URLSearchParams("utm_source=later"),
+      getFirstTouch: () => ({
+        first_access_at: "2026-10-15T00:00:00.000Z",
+        utm_source: "first",
+        utm_campaign: null,
+      }),
+    });
+    const { trackPurchase } = await import("../lib/meta-events");
+    trackPurchase("order-original-params", 990, [
+      ["utm_source", "original"],
+      ["fbclid", "fb-click-id"],
+      ["custom_tag", "one"],
+      ["custom_tag", "two"],
+      ["empty", ""],
+    ]);
+    expect(dataLayer[0]).toMatchObject({
+      event: "purchase",
+      attribution: {
+        parameters: {
+          utm_source: "original",
+          fbclid: "fb-click-id",
+          custom_tag: ["one", "two"],
+          empty: "",
+        },
+      },
+    });
+    expect(JSON.stringify(dataLayer[0])).not.toContain("utm_source=later");
+  });
   it("does not throw or mark unsent events if the pixel is absent or throws", async () => {
     vi.stubGlobal("fbq", undefined);
     const { trackMeta } = await import("../lib/meta-events");
