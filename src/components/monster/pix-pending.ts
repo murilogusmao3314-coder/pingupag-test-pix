@@ -22,7 +22,7 @@ export function readPendingPix(now = Date.now()): PendingPix[] {
       isReference(entry.reference) &&
       typeof entry.token === "string" &&
       entry.token.length > 10 &&
-      entry.token.length <= 2000 &&
+      entry.token.length <= 8192 &&
       typeof entry.createdAt === "number" &&
       Number.isFinite(entry.createdAt) &&
       entry.createdAt <= now &&
@@ -34,7 +34,7 @@ export function readPendingPix(now = Date.now()): PendingPix[] {
 }
 
 export function rememberPendingPix(token?: string, reference?: string) {
-  if (!isReference(reference) || !token || token.length > 2000) return;
+  if (!isReference(reference) || !token || token.length > 8192) return;
   try {
     const prior = readPendingPix().filter((entry) => entry.reference !== reference);
     window.localStorage.setItem(
