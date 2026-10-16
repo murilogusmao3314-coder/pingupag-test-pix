@@ -6,7 +6,7 @@ A dedicated optional page is available at `/upsell1`. A direct visit without a v
 
 - 4 Monster-themed wristbands and 1 pair of Bluetooth earbuds with a themed case.
 - Price: R$ 39,90 (`3990` integer cents) for the entire optional kit, with a separate Pix charge.
-- The visual is the user-provided product photo, locally optimized at `public/upsell-kit.webp`. It is not linked to a third-party image host.
+- The product photo is sourced from the user's original 1254×1254 image and served at 900×900 through `public/upsell-kit-hq.avif` (optimized, modern format) and `public/upsell-kit-hq.webp` (quality-78 browser fallback). The previous `public/upsell-kit.webp` file was an excessively compressed 4.5 KB thumbnail and is no longer referenced by the page. Both new files are served locally, with no third-party image host.
 - The page does **not** claim Apple-certified AirPods, licensed collaboration, or official provenance without verification. Product provenance, technical specifications, warranty and fulfillment must be confirmed with the actual supplier before launch.
 - Two independent buttons: accepting offers a new payment; declining leaves the earlier payment unchanged.
 
@@ -28,4 +28,4 @@ A dedicated optional page is available at `/upsell1`. A direct visit without a v
 - The app currently uses best-effort front-end debouncing plus session-stored Pix to avoid repeated clicks/reloads. Only a durable backend order ledger can guarantee one upsell charge per original purchase across devices.
 - Tests cover unauthorised/unapproved payments, signed amount and gateway reference, status recovery, preview constraints, order/customer/address reuse, and local image signature. Live payment and actual vendor behavior must be tested in a controlled environment.
 
-Related code: `src/routes/upsell1.tsx`, `src/lib/upsell.functions.ts`, `src/components/monster/upsell-session.ts`, and `public/upsell-kit.webp`.
+Related code: `src/routes/upsell1.tsx`, `src/lib/upsell.functions.ts`, `src/components/monster/upsell-session.ts`, and `public/upsell-kit-hq.avif` / `public/upsell-kit-hq.webp`.
