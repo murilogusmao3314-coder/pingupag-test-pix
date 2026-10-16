@@ -8,6 +8,13 @@ import {
 } from "./pix-gateway.server";
 
 import { signPixReceipt, verifyPixReceipt, verifiedPixStatus } from "./pix-receipt.server";
+import {
+  sendUtmifyOrder,
+  utmifyTrackingSchema,
+  type UtmifyOrderContext,
+} from "./utmify-orders.server";
+import { utmifyKeys } from "./utmify-tracking";
+import { sealUtmifyContext, openUtmifyContext } from "./utmify-envelope.server";
 
 const schema = z.object({
   amount: z.number().int().min(100).max(10000000),
@@ -16,6 +23,7 @@ const schema = z.object({
   email: z.string().email().max(200),
   document: z.string().regex(/^\d{11,14}$/),
   phone: z.string().regex(/^\d{10,11}$/),
+  trackingParameters: utmifyTrackingSchema.optional(),
   address: z
     .object({
       street: z.string().trim().min(1).max(150),
@@ -64,8 +72,7 @@ export const createPix = createServerFn({ method: "POST" })
 
     try {
       const reference = `QUIZ-${crypto.randomUUID()}`;
-      // Analytics availability must not prevent a customer from generating a Pix.
-      const trackingToken = await signPixReceipt(reference, data.amount, key).catch(() => null);
+      const createdAt = new Date().toISOString();
       const response = await requestPixGateway(
         JSON.stringify({
           amount: data.amount,
@@ -123,6 +130,36 @@ export const createPix = createServerFn({ method: "POST" })
             "A API respondeu, mas não retornou um código Pix válido. Confira o formato de resposta do gateway.",
         };
       }
+      // Only the exact seven fields supported by Utmify are included. The
+      // original gateway request body above is kept unchanged.
+      const trackingParameters = data.trackingParameters ??
+        Object.fromEntries(utmifyKeys.map((name) => [name, null])) as
+          UtmifyOrderContext["trackingParameters"];
+      const context: UtmifyOrderContext = {
+        createdAt,
+        customer: {
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          document: data.document,
+        },
+        trackingParameters,
+      };
+      // A sealed context makes approved status updates possible after reload
+      // without putting identifiable buyer information in plain client storage.
+      // No Utmify credential means the integration remains opt-in.
+      const hasUtmifyToken = Boolean(process.env["UTMIFY_API_TOKEN"]?.trim());
+      const envelope = hasUtmifyToken
+        ? await sealUtmifyContext(context, key).catch(() => null)
+        : null;
+      const trackingToken = await signPixReceipt(
+        reference,
+        data.amount,
+        key,
+        envelope || undefined,
+      ).catch(() => null);
+      if (hasUtmifyToken) await sendUtmifyOrder(reference, data.amount, context, "waiting_payment");
+
       return {
         ok: true as const,
         qr_code: qrCode,
@@ -139,7 +176,7 @@ export const createPix = createServerFn({ method: "POST" })
 
 /** Never trusts a browser-supplied paid flag, amount, or arbitrary order ID. */
 export const checkPixPayment = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => z.object({ token: z.string().min(1).max(2000) }).parse(input))
+  .inputValidator((input: unknown) => z.object({ token: z.string().min(1).max(8192) }).parse(input))
   .handler(async ({ data }) => {
     const key = process.env["PINGUPAG_API_KEY"]?.trim();
     if (!key || /[\r\n]/.test(key)) return { ok: false as const, code: "STATUS_UNAVAILABLE" };
@@ -150,9 +187,22 @@ export const checkPixPayment = createServerFn({ method: "POST" })
       const payload: unknown = await response.json();
       if (gatewayHttpFailure(response, payload))
         return { ok: false as const, code: "STATUS_UNAVAILABLE" };
+      const status = verifiedPixStatus(payload, receipt);
+      if (status !== "pending" && receipt.utmifyEnvelope) {
+        const context = await openUtmifyContext(receipt.utmifyEnvelope, key);
+        if (context) {
+          const utmifyStatus = {
+            approved: "paid",
+            failed: "refused",
+            refunded: "refunded",
+            chargeback: "chargedback",
+          } as const;
+          await sendUtmifyOrder(receipt.reference, receipt.amount, context, utmifyStatus[status]);
+        }
+      }
       return {
         ok: true as const,
-        status: verifiedPixStatus(payload, receipt),
+        status,
         reference: receipt.reference,
         amount: receipt.amount,
       };
