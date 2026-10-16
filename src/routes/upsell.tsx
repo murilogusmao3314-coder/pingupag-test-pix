@@ -59,7 +59,7 @@ function PriorityUpsell() {
 
   function continueToTracking() {
     // Both paths use the ORIGINAL front purchase's signed tracking access token.
-    const access = accessCode || offer?.trackingAccess;
+    const access = accessCode || offer?.trackingAccess || readUpsellOffer()?.trackingAccess;
     if (offer) dismissUpsellOffer(offer.parentReference);
     forgetUpsellPayment();
     window.location.replace(access
