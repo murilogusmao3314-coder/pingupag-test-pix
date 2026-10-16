@@ -122,11 +122,6 @@ export function ResultSections({ onRedeem }: { onRedeem: () => void }) {
       <footer className="mst-company mst-wrap">
         <strong>{content.footer.company_name}</strong>
         {content.footer.cnpj}
-        <p className="mst-disclosure">
-          Recriação da referência fornecida. As informações promocionais e os depoimentos são do
-          material original; não constituem comprovação de estoque, entrega ou vínculo oficial neste
-          projeto.
-        </p>
       </footer>
     </>
   );
