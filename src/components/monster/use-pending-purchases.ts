@@ -1,11 +1,13 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { checkPixPayment } from "@/lib/pix.functions";
 import { trackPurchase } from "@/lib/meta-events";
 import { forgetPendingPix, readPendingPix } from "./pix-pending";
 
 /** Recover confirmed purchases when a visitor returns after leaving the Pix screen. */
-export function usePendingPurchases(enabled: boolean) {
+export function usePendingPurchases(enabled: boolean, onFirstPaymentApproved?: (token: string, reference: string) => void) {
+  const approvedHandler = useRef(onFirstPaymentApproved);
+  approvedHandler.current = onFirstPaymentApproved;
   const checkPayment = useServerFn(checkPixPayment);
   useEffect(() => {
     if (!enabled || typeof document === "undefined") return;
@@ -28,7 +30,12 @@ export function usePendingPurchases(enabled: boolean) {
               continue;
             }
             if (result.reference !== entry.reference) continue;
-            if (result.status === "approved") trackPurchase(result.reference, result.amount, result.attribution);
+            if (result.status === "approved") {
+              trackPurchase(result.reference, result.amount, result.attribution);
+              if (result.kind !== "upsell") {
+                approvedHandler.current?.(entry.token, result.reference);
+              }
+            }
             if (result.status !== "pending") forgetPendingPix(entry.reference);
           } catch {
             // The next visible retry can recover intermittent network failures.
