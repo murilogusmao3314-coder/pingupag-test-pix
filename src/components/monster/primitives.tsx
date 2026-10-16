@@ -29,10 +29,10 @@ export function Action({ className, type = "button", ...props }: ActionProps) {
  return <Button type={type} variant="ghost" className={cn("mst-cta", className)} {...props} />;
 }
 export interface PhotoProps extends Omit<ComponentProps<"img">, "src"> { file: string }
-export function Photo({ file, alt, className, ...props }: PhotoProps) {
+export function Photo({ file, alt, className, loading = "lazy", decoding = "async", ...props }: PhotoProps) {
  const [failed, setFailed] = useState(false);
  const url = assets[file];
  if (!url || failed) return <div className={cn("mst-placeholder",className)} role="img" aria-label={alt}>[FOTO_ORIGINAL: {file}]</div>;
- return <img src={url} alt={alt} className={className} onError={() => setFailed(true)} {...props} />;
+ return <img src={url} alt={alt} className={className} loading={loading} decoding={decoding} onError={() => setFailed(true)} {...props} />;
 }
 
