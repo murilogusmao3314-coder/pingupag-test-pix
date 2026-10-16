@@ -20,6 +20,7 @@ import { useCepLookup } from "./use-cep-lookup";
 import { ShippingOptions, Extras, Totals, Seals } from "./order";
 import { Payment, type PixPayment } from "./payment";
 import { rememberPendingPix } from "./pix-pending";
+import { getCheckoutTracking } from "@/lib/utmify-tracking";
 export function Checkout({
   onClose,
   remaining = 600,
@@ -138,6 +139,7 @@ export function Checkout({
         data: {
           ...customer.data,
           amount: total,
+          trackingParameters: getCheckoutTracking(),
           address: {
             street: address.data.street,
             number: address.data.number,
