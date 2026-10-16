@@ -189,23 +189,26 @@ export const checkPixPayment = createServerFn({ method: "POST" })
       if (gatewayHttpFailure(response, payload))
         return { ok: false as const, code: "STATUS_UNAVAILABLE" };
       const status = verifiedPixStatus(payload, receipt);
-      if (status !== "pending" && receipt.utmifyEnvelope) {
-        const context = await openUtmifyContext(receipt.utmifyEnvelope, key);
-        if (context) {
-          const utmifyStatus = {
-            approved: "paid",
-            failed: "refused",
-            refunded: "refunded",
-            chargeback: "chargedback",
-          } as const;
-          await sendUtmifyOrder(receipt.reference, receipt.amount, context, utmifyStatus[status]);
-        }
+      const context = status !== "pending" && receipt.utmifyEnvelope
+        ? await openUtmifyContext(receipt.utmifyEnvelope, key)
+        : null;
+      if (context && status !== "pending") {
+        const utmifyStatus = {
+          approved: "paid",
+          failed: "refused",
+          refunded: "refunded",
+          chargeback: "chargedback",
+        } as const;
+        await sendUtmifyOrder(receipt.reference, receipt.amount, context, utmifyStatus[status]);
       }
       return {
         ok: true as const,
         status,
         reference: receipt.reference,
         amount: receipt.amount,
+        ...(status === "approved" && context?.parameters?.length
+          ? { attribution: context.parameters }
+          : {}),
       };
     } catch {
       return { ok: false as const, code: "STATUS_UNAVAILABLE" };
