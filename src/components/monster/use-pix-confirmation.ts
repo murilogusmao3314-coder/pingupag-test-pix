@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { checkPixPayment } from "@/lib/pix.functions";
 import { trackMeta, trackPurchase } from "@/lib/meta-events";
+import { forgetPendingPix } from "./pix-pending";
 
 export function usePixConfirmation(token?: string) {
   const checkPayment = useServerFn(checkPixPayment);
@@ -46,6 +47,7 @@ export function usePixConfirmation(token?: string) {
                 { status: result.status },
                 { custom: true, key: result.reference },
               );
+            forgetPendingPix(result.reference);
           }
         }
       } catch {
