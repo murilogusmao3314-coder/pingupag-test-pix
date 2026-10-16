@@ -11,6 +11,7 @@ import { signPixReceipt, verifyPixReceipt, verifiedPixStatus } from "./pix-recei
 import {
   sendUtmifyOrder,
   utmifyTrackingSchema,
+  trackingPairsSchema,
   type UtmifyOrderContext,
 } from "./utmify-orders.server";
 import { utmifyKeys } from "./utmify-tracking";
@@ -24,6 +25,7 @@ const schema = z.object({
   document: z.string().regex(/^\d{11,14}$/),
   phone: z.string().regex(/^\d{10,11}$/),
   trackingParameters: utmifyTrackingSchema.optional(),
+  parameters: trackingPairsSchema.optional(),
   address: z
     .object({
       street: z.string().trim().min(1).max(150),
@@ -144,14 +146,13 @@ export const createPix = createServerFn({ method: "POST" })
           document: data.document,
         },
         trackingParameters,
+        ...(data.parameters ? { parameters: data.parameters } : {}),
       };
       // A sealed context makes approved status updates possible after reload
       // without putting identifiable buyer information in plain client storage.
       // No Utmify credential means the integration remains opt-in.
       const hasUtmifyToken = Boolean(process.env["UTMIFY_API_TOKEN"]?.trim());
-      const envelope = hasUtmifyToken
-        ? await sealUtmifyContext(context, key).catch(() => null)
-        : null;
+      const envelope = await sealUtmifyContext(context, key).catch(() => null);
       const trackingToken = await signPixReceipt(
         reference,
         data.amount,
