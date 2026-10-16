@@ -34,7 +34,7 @@ export function usePendingPurchases(enabled: boolean, onFirstPaymentApproved?: (
             if (result.reference !== entry.reference) continue;
             if (result.status === "approved") {
               trackPurchase(result.reference, result.amount, result.attribution);
-              if (result.kind !== "upsell") {
+              if (result.kind !== "upsell" && result.upsellEligible) {
                 approvedHandler.current?.(entry.token, result.reference);
               }
             }
