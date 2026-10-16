@@ -35,7 +35,7 @@ describe("Verified Pix conversion", () => {
   it("rejects expired, malformed and arbitrary reference capabilities", async () => {
     vi.useFakeTimers();
     const token = await signPixReceipt(reference, 990, secret);
-    vi.advanceTimersByTime(30 * 60000 + 1);
+    vi.advanceTimersByTime(24 * 60 * 60000 + 1);
     expect(await verifyPixReceipt(token, secret)).toBeNull();
     expect(await verifyPixReceipt("invalid.token.more", secret)).toBeNull();
     await expect(signPixReceipt("other-order", 990, secret)).rejects.toThrow();
