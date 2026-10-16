@@ -111,3 +111,14 @@
   .pru-custom-icon{width:32px;height:32px}
   .pru-guarantee{width:51px;height:51px;margin:-3px -5px -3px -2px}
 }
+
+/* High-definition art and a compact, legible custom 90-day insignia. */
+.pru-guarantee{display:block;width:57px;height:57px;flex:none;margin:-4px -6px -4px -3px;overflow:visible;filter:drop-shadow(0 3px 5px #0008)}
+.pru-package{image-rendering:auto}
+.pru-payment-art img{image-rendering:auto}
+@media(max-width:520px){.pru-guarantee{width:52px;height:52px;margin:-3px -5px -3px -2px}}
+
+/* Render parcel with resolution-independent paths rather than the old 160px image. */
+.pru-package{display:block;width:158px;max-width:44%;height:auto;aspect-ratio:260 / 250;overflow:visible;filter:drop-shadow(0 7px 11px #000a)}
+.pru-payment-art .pru-package{width:85px;max-width:90%;height:auto;filter:drop-shadow(0 3px 5px #0008)}
+@media(max-width:520px){.pru-package{width:140px;max-width:43%}}

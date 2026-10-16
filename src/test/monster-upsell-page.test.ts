@@ -6,8 +6,12 @@ describe("Optional priority service and original tracking integrity", () => {
     const page = readFileSync("src/routes/upsell.tsx", "utf8");
     expect(page).toContain('createFileRoute("/upsell")');
     expect(page).toContain('Serviço opcional');
-    expect(page).toContain('/images/upsell-priority-box.avif');
-    expect(page).toContain('/images/upsell-warranty-90d.avif');
+    expect(page).toContain('function PremiumParcel()');
+    expect(page).toContain('<PremiumParcel />');
+    expect(page).not.toContain('/images/upsell-priority-box.avif');
+    expect(page).toContain('function WarrantyInsignia()');
+    expect(page).toContain('<WarrantyInsignia />');
+    expect(page).not.toContain('/images/upsell-warranty-90d.avif');
     expect(page).toContain('pru-visual');
     expect(page).toContain('pru-benefit-warranty');
     expect(page).toContain('<PriorityIcon kind="sorting" />');
@@ -50,13 +54,12 @@ describe("Optional priority service and original tracking integrity", () => {
     expect(legacy).not.toContain('FONES SEM FIO');
   });
 
-  it("ships both user-provided images as real optimized AVIF assets", () => {
-    const box = readFileSync("public/images/upsell-priority-box.avif");
-    const guarantee = readFileSync("public/images/upsell-warranty-90d.avif");
-    for (const asset of [box, guarantee]) {
-      expect(asset.length).toBeGreaterThan(1000);
-      expect(asset.toString("ascii", 4, 12)).toBe("ftypavif");
-    }
+  it("uses crisp scalable artwork for both the parcel and the guarantee", () => {
+    const page = readFileSync("src/routes/upsell.tsx", "utf8");
+    expect(page).toContain('viewBox="0 0 260 250"');
+    expect(page).toContain('viewBox="0 0 96 96"');
+    expect(page).toContain("function PremiumParcel()");
+    expect(page).toContain("function WarrantyInsignia()");
   });
 
   it("stores front tracking before the upsell redirect and keeps the live tracker separate", () => {

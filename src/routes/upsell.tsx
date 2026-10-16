@@ -44,6 +44,80 @@ function PriorityIcon({ kind }: { kind: PriorityIconKind }) {
   </svg>;
 }
 
+
+
+/** Scalable box art designed for the site, without low-resolution raster scaling. */
+function PremiumParcel() {
+  return (
+    <svg className="pru-package" viewBox="0 0 260 250" fill="none" role="img" aria-label="Caixa temática de envio com acabamento kraft, preto e verde" focusable="false">
+      <defs>
+        <linearGradient id="pru-box-top" x1="46" y1="39" x2="191" y2="115" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#F7D4A1"/><stop offset=".56" stopColor="#D4A16B"/><stop offset="1" stopColor="#F8D4A2"/>
+        </linearGradient>
+        <linearGradient id="pru-box-front" x1="27" y1="93" x2="124" y2="230" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#E2B184"/><stop offset="1" stopColor="#A56B3E"/>
+        </linearGradient>
+        <linearGradient id="pru-box-side" x1="125" y1="110" x2="230" y2="220" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#C28D57"/><stop offset="1" stopColor="#754824"/>
+        </linearGradient>
+        <linearGradient id="pru-box-tape" x1="100" y1="37" x2="169" y2="152" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#3D4240"/><stop offset=".5" stopColor="#161B1C"/><stop offset="1" stopColor="#080B0E"/>
+        </linearGradient>
+        <filter id="pru-box-glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="1.8"/>
+        </filter>
+      </defs>
+      <ellipse cx="132" cy="229" rx="94" ry="12" fill="#A6FF00" fillOpacity=".14" filter="url(#pru-box-glow)"/>
+      <path d="M22 75 122 24 239 83 135 127 22 75Z" fill="url(#pru-box-top)" stroke="#F5D0A0" strokeWidth="2.2" strokeLinejoin="round"/>
+      <path d="M22 75 135 127 135 225 22 176V75Z" fill="url(#pru-box-front)" stroke="#DEB58B" strokeWidth="2.2" strokeLinejoin="round"/>
+      <path d="M135 127 239 83V182L135 225V127Z" fill="url(#pru-box-side)" stroke="#9B653B" strokeWidth="2.2" strokeLinejoin="round"/>
+      <path d="M84 44 110 31 214 95 184 108 84 44Z" fill="url(#pru-box-tape)"/>
+      <path d="M118 112 142 122 142 153 118 144V112Z" fill="#171B1C" opacity=".86"/>
+      <path d="M36 185 55 193 135 223V206L32 168 22 162V178L36 185Z" fill="#191C1C"/>
+      <path d="M144 206 232 168V188L144 223V206Z" fill="#171C1C"/>
+      <path d="M32 163 44 169 135 209M144 208 229 170" stroke="#9BE600" strokeWidth="3" opacity=".9"/>
+      <path d="M176 110 228 87 239 83V120L215 132 239 94" fill="#151717" opacity=".88"/>
+      <path d="m188 198 38-74-8 42-21 35 26-26-17 30" fill="#9CE900" opacity=".88"/>
+      <path d="m37 111 4 7 10 3m10-11 4 6 9 2m11-11 5 6" stroke="#3E2E20" strokeWidth="2" strokeLinecap="square" opacity=".55"/>
+      <path d="M51 101c13 4 25 6 32 4 4 5 12 6 18 6l-4 11-5-2-7 48-9 27-2-17 5-61-10-2-3 48-6 28-2-19 3-58-9-4-5 46-4 17-1-21 3-58-8-4 15-9Z" fill="#111A10" opacity=".95"/>
+      <path d="m55 108 13 5-8 55-3 12-1-16 3-49-6-2m22 4 10 2-8 57-4 11 1-19 4-46m14 2 7-2-7 48-5 14 1-18 6-44" stroke="#A6FF00" strokeWidth="5.2" strokeLinecap="square" strokeLinejoin="round"/>
+      <path d="M38 150h20v22H38z" stroke="#795536" strokeOpacity=".2"/>
+      <path d="M41 157v14m3-14v14m3-14v14m2-14v14m4-14v14" stroke="#33281D" strokeWidth="1.5" opacity=".62"/>
+      <path d="M35 79v95m1-96 98 46m99-38-97 41" stroke="#FFF0D1" strokeOpacity=".35" strokeWidth="1.5"/>
+      <path d="M178 66 210 84" stroke="#C0F268" strokeWidth="1.8" opacity=".72"/>
+      <path d="M141 225 239 183" stroke="#2C1B0B" strokeWidth="2" opacity=".6"/>
+    </svg>
+  );
+}
+
+/** Precisely scalable ninety-day warranty insignia, replacing the raster seal. */
+function WarrantyInsignia() {
+  return (
+    <svg className="pru-guarantee" viewBox="0 0 96 96" fill="none" role="img" aria-label="Selo de garantia de 90 dias" focusable="false">
+      <defs>
+        <linearGradient id="pru-warranty-gold" x1="16" y1="9" x2="83" y2="88" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#FFF0A1" />
+          <stop offset=".38" stopColor="#DAA935" />
+          <stop offset=".73" stopColor="#947021" />
+          <stop offset="1" stopColor="#F4D16F" />
+        </linearGradient>
+        <linearGradient id="pru-warranty-dark" x1="23" y1="14" x2="76" y2="83" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#25301B"/>
+          <stop offset="1" stopColor="#0A100C"/>
+        </linearGradient>
+      </defs>
+      <path d="M48 4 83 15 89 49 75 77 48 92 21 77 7 49 13 15 48 4Z" fill="url(#pru-warranty-gold)"/>
+      <path d="M48 10 78 20 83 49 70 73 48 85 26 73 13 49 18 20 48 10Z" fill="url(#pru-warranty-dark)" stroke="#FAE298" strokeWidth="1.2"/>
+      <path d="M48 14 74 23 79 49 67 70 48 80 29 70 17 49 22 23 48 14Z" stroke="#A7EA52" strokeOpacity=".55" strokeWidth="1"/>
+      <path d="m34 24 14-5 14 5" stroke="#E6CA78" strokeWidth="1.4" strokeLinecap="square"/>
+      <text x="48" y="57" fill="#F7D86D" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="33" fontWeight="900" textAnchor="middle" letterSpacing="-2.5">90</text>
+      <path d="M30 61H66" stroke="#9EE447" strokeWidth="1.5"/>
+      <text x="48" y="71" fill="#EAD9A1" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="9" fontWeight="800" textAnchor="middle" letterSpacing="2.2">DIAS</text>
+      <circle cx="48" cy="14" r="2" fill="#D8F69D"/>
+    </svg>
+  );
+}
+
 type OfferState = "checking" | "ready" | "preview" | "unavailable";
 
 function PriorityUpsell() {
@@ -128,7 +202,7 @@ function PriorityUpsell() {
         <div className="pru-overline"><span className="pru-pulse" /> ÚLTIMA ETAPA ANTES DO RASTREIO</div>
         {payment ? (
           <div className="pru-payment">
-            <div className="pru-payment-art"><img src="/images/upsell-priority-box.avif" width={76} height={76} alt="Caixa de envio com identidade verde e preta" /></div>
+            <div className="pru-payment-art"><PremiumParcel /></div>
             <span className="pru-eyebrow">SERVIÇO ADICIONAL · PIX SEPARADO</span>
             <h1>Confirme sua <em>prioridade.</em></h1>
             <p className="pru-lead">Este Pix de {money(UPSELL_AMOUNT)} é exclusivamente pelo serviço opcional. Seu pedido e código de rastreio original permanecem iguais.</p>
@@ -140,7 +214,7 @@ function PriorityUpsell() {
           <>
             <div className="pru-visual" aria-label="Apresentação do serviço de prioridade">
               <div className="pru-visual-orbit" aria-hidden="true"><span>PRIORIDADE</span><span>EXPEDIÇÃO</span></div>
-              <img className="pru-package" src="/images/upsell-priority-box.avif" width={128} height={128} alt="Caixa kraft personalizada com detalhes pretos e verde neon" decoding="async" fetchPriority="high" />
+              <PremiumParcel />
               <span className="pru-visual-caption">PREPARAÇÃO COM CUIDADO EXTRA</span>
             </div>
             <span className="pru-eyebrow">ATENDIMENTO + EXPEDIÇÃO PRIORITÁRIOS</span>
@@ -150,7 +224,7 @@ function PriorityUpsell() {
             <div className="pru-benefits" aria-label="Benefícios do serviço">
               <div className="pru-benefit"><span className="pru-benefit-mark pru-benefit-sort"><PriorityIcon kind="sorting" /></span><p><strong>Separação prioritária</strong><small>Seu pedido ganha prioridade na fila interna de preparação.</small></p><b className="pru-benefit-id">01</b></div>
               <div className="pru-benefit"><span className="pru-benefit-mark pru-benefit-freight"><PriorityIcon kind="dispatch" /></span><p><strong>Encaminhamento prioritário</strong><small>Tratamento prioritário pela loja, sujeito à operação de envio.</small></p><b className="pru-benefit-id">02</b></div>
-              <div className="pru-benefit pru-benefit-warranty"><img className="pru-guarantee" src="/images/upsell-warranty-90d.avif" width={56} height={56} alt="Selo dourado de garantia de 90 dias" decoding="async" /><p><strong>Garantia estendida a 90 dias</strong><small>Mais cobertura sobre os produtos elegíveis do pedido.</small></p></div>
+              <div className="pru-benefit pru-benefit-warranty"><WarrantyInsignia /><p><strong>Garantia estendida a 90 dias</strong><small>Mais cobertura sobre os produtos elegíveis do pedido.</small></p></div>
               <div className="pru-benefit"><span className="pru-benefit-mark pru-benefit-time"><PriorityIcon kind="support" /></span><p><strong>Suporte em até 2 horas</strong><small>Prioridade na primeira resposta durante o horário de atendimento.</small></p><b className="pru-benefit-id">04</b></div>
             </div>
 
