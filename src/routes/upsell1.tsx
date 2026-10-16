@@ -55,7 +55,7 @@ function UpsellOne() {
           result.ok &&
           result.status === "approved" &&
           result.reference === saved.parentReference &&
-          result.kind !== "upsell" ? "ready" : "preview",
+          result.kind !== "upsell" && result.upsellEligible ? "ready" : "preview",
         );
       })
       .catch(() => { if (active) setState("preview"); });
