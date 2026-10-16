@@ -11,6 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as Upsell1RouteImport } from './routes/upsell1'
+import { Route as PedidoRouteImport } from './routes/pedido'
+import { Route as RastrearRouteImport } from './routes/rastrear'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -23,30 +25,49 @@ const Upsell1Route = Upsell1RouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 
+const PedidoRoute = PedidoRouteImport.update({
+  id: '/pedido',
+  path: '/pedido',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RastrearRoute = RastrearRouteImport.update({
+  id: '/rastrear',
+  path: '/rastrear',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/upsell1': typeof Upsell1Route
+  '/pedido': typeof PedidoRoute
+  '/rastrear': typeof RastrearRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/upsell1': typeof Upsell1Route
+  '/pedido': typeof PedidoRoute
+  '/rastrear': typeof RastrearRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/upsell1': typeof Upsell1Route
+  '/pedido': typeof PedidoRoute
+  '/rastrear': typeof RastrearRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/upsell1'
+  fullPaths: '/' | '/upsell1' | '/pedido' | '/rastrear'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/upsell1'
-  id: '__root__' | '/' | '/upsell1'
+  to: '/' | '/upsell1' | '/pedido' | '/rastrear'
+  id: '__root__' | '/' | '/upsell1' | '/pedido' | '/rastrear'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   Upsell1Route: typeof Upsell1Route
+  PedidoRoute: typeof PedidoRoute
+  RastrearRoute: typeof RastrearRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +86,28 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Upsell1RouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pedido': {
+      id: '/pedido'
+      path: '/pedido'
+      fullPath: '/pedido'
+      preLoaderRoute: typeof PedidoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rastrear': {
+      id: '/rastrear'
+      path: '/rastrear'
+      fullPath: '/rastrear'
+      preLoaderRoute: typeof RastrearRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   Upsell1Route: Upsell1Route,
+  PedidoRoute: PedidoRoute,
+  RastrearRoute: RastrearRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

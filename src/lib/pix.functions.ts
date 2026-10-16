@@ -16,6 +16,7 @@ import {
 } from "./utmify-orders.server";
 import { utmifyKeys } from "./utmify-tracking";
 import { sealUtmifyContext, openUtmifyContext } from "./utmify-envelope.server";
+import { codeForPaidReference } from "./order-tracking.server";
 
 const schema = z.object({
   amount: z.number().int().min(100).max(10000000),
@@ -216,6 +217,7 @@ export const checkPixPayment = createServerFn({ method: "POST" })
         reference: receipt.reference,
         amount: receipt.amount,
         ...(receipt.kind ? { kind: receipt.kind } : {}),
+        ...(status === "approved" ? { tracking_code: await codeForPaidReference(receipt.reference, key) } : {}),
         ...(status === "approved" && !receipt.kind && context?.address ? { upsellEligible: true } : {}),
         ...(status === "approved" && context?.parameters?.length
           ? { attribution: context.parameters }

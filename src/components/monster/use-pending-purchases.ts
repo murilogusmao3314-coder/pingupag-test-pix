@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { checkPixPayment } from "@/lib/pix.functions";
 import { trackPurchase } from "@/lib/meta-events";
 import { forgetPendingPix, readPendingPix } from "./pix-pending";
+import { rememberTrackingCode } from "./tracking-client";
 
 /** Recover confirmed purchases when a visitor returns after leaving the Pix screen. */
 export function usePendingPurchases(enabled: boolean, onFirstPaymentApproved?: (token: string, reference: string) => void) {
@@ -33,9 +34,12 @@ export function usePendingPurchases(enabled: boolean, onFirstPaymentApproved?: (
             }
             if (result.reference !== entry.reference) continue;
             if (result.status === "approved") {
+              if (result.tracking_code) rememberTrackingCode(result.tracking_code);
               trackPurchase(result.reference, result.amount, result.attribution);
               if (result.kind !== "upsell" && result.upsellEligible) {
                 approvedHandler.current?.(entry.token, result.reference);
+              } else if (result.kind !== "upsell" && result.tracking_code) {
+                window.location.assign("/pedido");
               }
             }
             if (result.status !== "pending") forgetPendingPix(entry.reference);

@@ -122,7 +122,7 @@ function UpsellOne() {
             <p>{state === "confirmed"
               ? "Seu pagamento adicional foi aprovado. Guarde os comprovantes dos dois pedidos."
               : "Você recusou o kit opcional. Seu pedido anterior não foi alterado."}</p>
-            <Link to="/" className="mst-upsell-return">Voltar ao início <ArrowRight size={16} /></Link>
+            <Link to="/pedido" className="mst-upsell-return">Acompanhar meu pedido <ArrowRight size={16} /></Link>
           </div>
         ) : payment ? (
           <section className="mst-upsell-payment" aria-label="Pagamento do kit opcional">

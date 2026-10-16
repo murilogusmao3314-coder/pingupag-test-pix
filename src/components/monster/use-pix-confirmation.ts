@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { checkPixPayment } from "@/lib/pix.functions";
 import { trackMeta, trackPurchase } from "@/lib/meta-events";
 import { forgetPendingPix } from "./pix-pending";
+import { rememberTrackingCode } from "./tracking-client";
 
 export function usePixConfirmation(token?: string, onApproved?: (reference: string) => void) {
   const approvedHandler = useRef(onApproved);
@@ -45,9 +46,12 @@ export function usePixConfirmation(token?: string, onApproved?: (reference: stri
           if (result.status !== "pending") {
             finished = true;
             if (result.status === "approved") {
+              if (result.tracking_code) rememberTrackingCode(result.tracking_code);
               trackPurchase(result.reference, result.amount, result.attribution);
               if (result.kind === "upsell" || result.upsellEligible) {
                 approvedHandler.current?.(result.reference);
+              } else if (result.tracking_code) {
+                window.location.assign("/pedido");
               }
             }
             else
