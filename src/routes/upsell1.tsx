@@ -147,9 +147,9 @@ function UpsellOne() {
             <p className="mst-upsell-sub">Kit com visual inspirado na Monster: quatro pulseiras e fones Bluetooth com estojo temático.</p>
             <div className="mst-upsell-image">
               <picture>
-                <source type="image/avif" srcSet="/upsell-kit-hq.avif" />
+                <source type="image/avif" srcSet="/images/upsell-kit-hq.avif" />
                 <img
-                  src="/upsell-kit-hq.webp"
+                  src="/images/upsell-kit-hq.webp"
                   alt="Quatro pulseiras temáticas verdes, pretas e brancas ao lado de fones sem fio brancos com estojo preto e verde"
                   width={900}
                   height={900}

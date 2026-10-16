@@ -4,7 +4,7 @@ const encoder = new TextEncoder();
 function base64Url(bytes: Uint8Array): string {
   return btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
-function unbase64Url(value: string): Uint8Array {
+function unbase64Url(value: string): Uint8Array<ArrayBuffer> {
   return Uint8Array.from(atob(value.replace(/-/g, "+").replace(/_/g, "/")), (char) => char.charCodeAt(0));
 }
 async function encryptionKey(secret: string): Promise<CryptoKey> {
