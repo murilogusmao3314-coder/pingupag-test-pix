@@ -28,6 +28,15 @@ export const utmifyOrderContextSchema = z.object({
   }).strict(),
   trackingParameters: utmifyTrackingSchema,
   parameters: trackingPairsSchema.optional(),
+  address: z.object({
+    street: z.string().min(1).max(150),
+    number: z.string().min(1).max(20),
+    complement: z.string().max(100).optional(),
+    neighborhood: z.string().min(1).max(100),
+    city: z.string().min(1).max(100),
+    state: z.string().regex(/^[A-Z]{2}$/),
+    zipcode: z.string().regex(/^\d{8}$/),
+  }).strict().optional(),
 }).strict();
 
 export type UtmifyOrderContext = z.infer<typeof utmifyOrderContextSchema>;
@@ -42,6 +51,10 @@ export async function sendUtmifyOrder(
   amount: number,
   context: UtmifyOrderContext,
   status: "waiting_payment" | "paid" | "refused" | "refunded" | "chargedback",
+  product: { id: string; name: string } = {
+    id: "monster-cup-1150-order",
+    name: "Pedido Monster 1,15L (envio e adicionais)",
+  },
 ): Promise<boolean> {
   const token = process.env["UTMIFY_API_TOKEN"]?.trim();
   if (!token || /[\r\n]/.test(token)) return false;
@@ -56,8 +69,8 @@ export async function sendUtmifyOrder(
     refundedAt: status === "refunded" ? utcDateTime(now) : null,
     customer: { ...context.customer, country: "BR" },
     products: [{
-      id: "monster-cup-1150-order",
-      name: "Pedido Monster 1,15L (envio e adicionais)",
+      id: product.id,
+      name: product.name,
       planId: null,
       planName: null,
       quantity: 1,
