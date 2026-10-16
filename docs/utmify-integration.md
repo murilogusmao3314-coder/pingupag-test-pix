@@ -4,7 +4,9 @@
 
 - `public/utmify-pixel.js` contains the decoded loader from the supplied snippet. Pixel ID: `6ad16da395251dffc52bd4c2`; vendor SDK: `https://cdn.utmify.com.br/scripts/pixel/pixel.js`.
 - `src/routes/__root.tsx` includes the loader exactly once, after the existing parameter-preservation and Meta Pixel scripts. The Meta Pixel ID `1078609691707266` and Meta events are not changed.
-- The checkout includes the seven Utmify-defined fields `src`, `sck`, `utm_source`, `utm_campaign`, `utm_medium`, `utm_content`, and `utm_term`. Missing fields are `null` (including organic visits). Other query string fields continue through the existing generic tracking helper but are not sent to the order API because the provider's schema does not define them.
+- The checkout includes the seven Utmify-defined fields `src`, `sck`, `utm_source`, `utm_campaign`, `utm_medium`, `utm_content`, and `utm_term`. Missing fields are `null` (including organic visits). The existing `tracking-params.js` carries **all** URL query keys across the funnel, including Facebook `fbclid`, custom keys, duplicates and empty values. At checkout, a bounded privacy-filtered snapshot of these arbitrary parameters is associated with the Pix reference inside the encrypted signed receipt. On verified approval, the same original snapshot is returned for the existing Tag Manager `purchase` event, even if the user has visited another link in the meantime. Sensitive URL keys, email-like values and oversized data are excluded from analytics.
+
+**UTMify API limitation:** UTMify's documented order endpoint defines only the seven listed `trackingParameters` properties. Additional keys are retained for on-site continuity and per-order `dataLayer` purchase attribution, **not** appended as undocumented API fields. The UTMify pixel may also inspect the preserved URL, but support for interpreting custom names is provider-dependent. There is no guarantee that arbitrary custom parameters appear as distinct UTMify dashboard columns.
 
 ## Server setup (required for reporting orders)
 
