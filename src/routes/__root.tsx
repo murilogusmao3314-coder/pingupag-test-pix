@@ -107,6 +107,7 @@ function RootShell({ children }: { children: ReactNode }) {
       <head>
         <script src="/tracking-params.js" defer />
         <script src="/meta-pixel.js" defer />
+        <script src="/utmify-pixel.js" defer />
         <HeadContent />
       </head>
       <body>
