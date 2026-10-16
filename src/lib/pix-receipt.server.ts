@@ -25,7 +25,7 @@ async function signingKey(secret: string) {
   );
 }
 
-/** Signed capability: allows reading only this new order, with no customer data. */
+/** Signed capability: the optional buyer context is encrypted and never stored as plaintext client-side. */
 export async function signPixReceipt(reference: string, amount: number, secret: string, utmifyEnvelope?: string) {
   const receipt = receiptSchema.parse({
     reference,
