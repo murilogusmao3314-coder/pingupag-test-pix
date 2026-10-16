@@ -56,6 +56,28 @@ describe("Pix purchase recovery", () => {
     expect(checkPayment).toHaveBeenCalledOnce();
   });
 
+  it("exposes the first paid receipt for an optional offer but not an already-paid upsell", async () => {
+    const onFirstPaymentApproved = vi.fn();
+    rememberPendingPix(token, reference);
+    checkPayment.mockResolvedValueOnce({
+      ok: true, status: "approved", reference, amount: 1894,
+    });
+    const first = renderHook(() => usePendingPurchases(true, onFirstPaymentApproved));
+    await waitFor(() =>
+      expect(onFirstPaymentApproved).toHaveBeenCalledWith(token, reference),
+    );
+    first.unmount();
+    onFirstPaymentApproved.mockClear();
+    rememberPendingPix(token, reference);
+    checkPayment.mockResolvedValueOnce({
+      ok: true, status: "approved", kind: "upsell", reference, amount: 3990,
+    });
+    const second = renderHook(() => usePendingPurchases(true, onFirstPaymentApproved));
+    await waitFor(() => expect(readPendingPix()).toHaveLength(0));
+    expect(onFirstPaymentApproved).not.toHaveBeenCalled();
+    second.unmount();
+  });
+
   it("does not report a purchase when the gateway says pending", async () => {
     const dataLayer: Record<string, unknown>[] = [];
     vi.stubGlobal("dataLayer", dataLayer);
