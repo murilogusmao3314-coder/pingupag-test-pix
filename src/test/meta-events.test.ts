@@ -42,6 +42,31 @@ describe("Meta funnel event safety", () => {
       { eventID: "Purchase:order-a" },
     ]);
   });
+  it("queues verified purchase with campaign parameters for Tag Manager even without Meta Pixel", async () => {
+    const dataLayer: Record<string, unknown>[] = [];
+    vi.stubGlobal("dataLayer", dataLayer);
+    vi.stubGlobal("fbq", undefined);
+    vi.stubGlobal("TrackingParams", {
+      getParameters: () =>
+        new URLSearchParams("utm_source=organic&extra=ok&tag=1&tag=2&email=private%40example.invalid"),
+      getFirstTouch: () => ({
+        first_access_at: "2026-10-15T00:00:00.000Z",
+        utm_source: "organic",
+        utm_campaign: null,
+      }),
+    });
+    const { trackPurchase } = await import("../lib/meta-events");
+    trackPurchase("QUIZ-12345678-1234-1234-1234-123456789012", 990);
+    trackPurchase("QUIZ-12345678-1234-1234-1234-123456789012", 990);
+    expect(dataLayer).toHaveLength(1);
+    expect(dataLayer[0]).toMatchObject({
+      event: "purchase",
+      transaction_id: "QUIZ-12345678-1234-1234-1234-123456789012",
+      ecommerce: { value: 9.9, currency: "BRL" },
+      attribution: { parameters: { utm_source: "organic", extra: "ok", tag: ["1", "2"] } },
+    });
+    expect(JSON.stringify(dataLayer)).not.toContain("private@example.invalid");
+  });
   it("does not throw or mark unsent events if the pixel is absent or throws", async () => {
     vi.stubGlobal("fbq", undefined);
     const { trackMeta } = await import("../lib/meta-events");
