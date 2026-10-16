@@ -400,7 +400,34 @@
     keepVisible();
     schedule();
   });
-  new MutationObserver(schedule).observe(document.documentElement, {
+  // React updates text frequently (including countdowns). Re-scan only when
+  // elements relevant to navigation or form submissions are actually changed.
+  new MutationObserver(function (records) {
+    for (var i = 0; i < records.length; i++) {
+      var record = records[i];
+      if (record.type === "attributes") {
+        if (record.target instanceof Element &&
+            (record.target.matches("a,form") || record.target.closest("form"))) {
+          schedule();
+          return;
+        }
+        continue;
+      }
+      var nodes = Array.from(record.addedNodes).concat(Array.from(record.removedNodes));
+      for (var j = 0; j < nodes.length; j++) {
+        var node = nodes[j];
+        if (!(node instanceof Element)) continue;
+        if (
+          node.matches("a,form") ||
+          node.querySelector("a[href],form") ||
+          (record.target instanceof Element && record.target.closest("form"))
+        ) {
+          schedule();
+          return;
+        }
+      }
+    }
+  }).observe(document.documentElement, {
     subtree: true,
     childList: true,
     attributes: true,
