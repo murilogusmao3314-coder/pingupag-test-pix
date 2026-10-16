@@ -48,9 +48,9 @@ function MonsterExperience() {
   const [selecting, setSelecting] = useState(false);
   const [checkout, setCheckout] = useState(false);
   function showFirstUpsell(token: string, reference: string) {
-    if (rememberUpsellOffer(token, reference)) {
-      window.location.assign("/upsell1");
-    }
+    // Preserve the optional upsell invitation, but show the payment confirmation first.
+    rememberUpsellOffer(token, reference);
+    window.location.assign("/pedido");
   }
   usePendingPurchases(!checkout, showFirstUpsell);
   const [deadline, setDeadline] = useState<number | null>(null);

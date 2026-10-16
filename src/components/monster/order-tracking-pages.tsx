@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { ArrowRight, Check, CheckCheck, Clipboard, MapPin, Package, RotateCw, ShieldCheck, Truck, Search, BadgeCheck, LockKeyhole, CircleDot, Sparkles } from "lucide-react";
 import { getOrderTracking } from "@/lib/order-tracking.functions";
 import { recentTrackingCodes, rememberTrackingCode, resolveSavedTrackingCode } from "./tracking-client";
+import { readUpsellOffer } from "./upsell-session";
 import "./order-tracking.css";
 
 type TrackingData = Awaited<ReturnType<typeof getOrderTracking>>; 
@@ -156,8 +157,10 @@ export function ConfirmationPage() {
   const [view, setView] = useState<"checking" | "approved" | "unavailable" | "pending" | "missing">("checking");
   const [order, setOrder] = useState<Extract<TrackingData, { ok: true }> | null>(null);
   const [retry, setRetry] = useState(0);
+  const [hasOptionalOffer, setHasOptionalOffer] = useState(false);
   useEffect(() => {
     let live = true;
+    setHasOptionalOffer(Boolean(readUpsellOffer()));
     const code = new URLSearchParams(window.location.search).get("acesso") ?? recentTrackingCodes()[0];
     if (!code) { setView("missing"); return; }
     setView("checking");
@@ -177,6 +180,7 @@ export function ConfirmationPage() {
           {order && <div className="trk-confirm-code"><small>SEU CÓDIGO DE ACOMPANHAMENTO</small><strong className="trk-track-number">{order.trackingCode}</strong></div>}
           <div className="trk-confirm-notice"><ShieldCheck size={18} /><span>Guarde este link. O acompanhamento do pedido estará disponível na página da loja, com as atualizações registradas em nosso sistema.</span></div>
           {order && <a className="trk-primary" href={"/rastrear?acesso=" + encodeURIComponent(order.accessCode)}>Acompanhar meu pedido <ArrowRight size={19} /></a>}
+          {hasOptionalOffer && <a href="/upsell1" className="trk-secondary">Conhecer oferta adicional opcional <ArrowRight size={16} /></a>}
         </> : <>
           <div className="trk-confirm-icon"><Package size={35} /></div>
           <h1>{view === "checking" ? "Conferindo pagamento…" : view === "pending" ? "Aguardando aprovação" : view === "missing" ? "Localize seu pedido" : "Consulta indisponível"}</h1>
