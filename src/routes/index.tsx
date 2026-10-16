@@ -4,6 +4,7 @@ import { Action, Photo } from "@/components/monster/primitives";
 import { Quiz } from "@/components/monster/quiz";
 import { Prize, ResultSections } from "@/components/monster/result-sections";
 import { Checkout } from "@/components/monster/checkout";
+import { usePendingPurchases } from "@/components/monster/use-pending-purchases";
 import { assets } from "@/components/monster/assets";
 import { cn } from "@/lib/utils";
 import { trackMeta, orderMeta } from "@/lib/meta-events";
@@ -45,6 +46,7 @@ function MonsterExperience() {
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [selecting, setSelecting] = useState(false);
   const [checkout, setCheckout] = useState(false);
+  usePendingPurchases(!checkout);
   const [deadline, setDeadline] = useState<number | null>(null);
   const [remaining, setRemaining] = useState(600);
   const [analysis, setAnalysis] = useState(0);
