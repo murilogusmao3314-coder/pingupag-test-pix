@@ -5,6 +5,7 @@ const receiptSchema = z.object({
   amount: z.number().int().min(100).max(10000000),
   expiresAt: z.number().int().positive(),
   utmifyEnvelope: z.string().max(6000).optional(),
+  kind: z.literal("upsell").optional(),
 });
 export type PixReceipt = z.infer<typeof receiptSchema>;
 const encoder = new TextEncoder();
@@ -26,12 +27,13 @@ async function signingKey(secret: string) {
 }
 
 /** Signed capability: the optional buyer context is encrypted and never stored as plaintext client-side. */
-export async function signPixReceipt(reference: string, amount: number, secret: string, utmifyEnvelope?: string) {
+export async function signPixReceipt(reference: string, amount: number, secret: string, utmifyEnvelope?: string, kind?: "upsell") {
   const receipt = receiptSchema.parse({
     reference,
     amount,
     expiresAt: Date.now() + 24 * 60 * 60 * 1000,
     ...(utmifyEnvelope ? { utmifyEnvelope } : {}),
+    ...(kind ? { kind } : {}),
   });
   const data = encode(encoder.encode(JSON.stringify(receipt)));
   const signature = await crypto.subtle.sign(
