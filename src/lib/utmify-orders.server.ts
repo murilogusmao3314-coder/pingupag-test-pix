@@ -45,6 +45,23 @@ export function utcDateTime(date: string) {
   return new Date(date).toISOString().slice(0, 19).replace("T", " ");
 }
 
+/** Dedupe repeated gateway status polling in this server instance. The same order ID
+ * must be reused for pending and approved updates. Cross-instance retries still rely on
+ * Utmify's orderId upsert contract; this cache is deliberately not a database.
+ */
+const delivered = new Map<string, { until: number; result: Promise<boolean> }>();
+const DELIVERY_TTL = 24 * 60 * 60 * 1000;
+function pruneDeliveries(now: number) {
+  for (const [key, entry] of delivered) {
+    if (entry.until <= now) delivered.delete(key);
+  }
+  while (delivered.size > 512) {
+    const oldest = delivered.keys().next().value;
+    if (oldest === undefined) break;
+    delivered.delete(oldest);
+  }
+}
+
 /** Send full order status from the server only; no API credential is exposed to the browser. */
 export async function sendUtmifyOrder(
   reference: string,
@@ -84,18 +101,28 @@ export async function sendUtmifyOrder(
       currency: "BRL",
     },
   };
-  try {
-    const response = await fetch("https://api.utmify.com.br/api-credentials/orders", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "x-api-token": token },
-      body: JSON.stringify(body),
-      redirect: "error",
-      signal: AbortSignal.timeout(2500),
-    });
-    if (!response.ok) console.warn("[utmify] Order status not accepted:", response.status);
-    return response.ok;
-  } catch {
-    console.warn("[utmify] Order status could not be delivered");
-    return false;
-  }
+  const cacheKey = reference + ":" + status;
+  const nowMs = Date.now();
+  pruneDeliveries(nowMs);
+  const cached = delivered.get(cacheKey);
+  if (cached && cached.until > nowMs) return cached.result;
+  const result = (async () => {
+    try {
+      const response = await fetch("https://api.utmify.com.br/api-credentials/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-api-token": token },
+        body: JSON.stringify(body),
+        redirect: "error",
+        signal: AbortSignal.timeout(2500),
+      });
+      if (!response.ok) console.warn("[utmify] Order status not accepted:", response.status);
+      return response.ok;
+    } catch {
+      console.warn("[utmify] Order status could not be delivered");
+      return false;
+    }
+  })();
+  delivered.set(cacheKey, { until: nowMs + DELIVERY_TTL, result });
+  if (!(await result) && delivered.get(cacheKey)?.result === result) delivered.delete(cacheKey);
+  return result;
 }

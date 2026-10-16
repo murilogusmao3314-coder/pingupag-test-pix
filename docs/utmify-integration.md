@@ -26,3 +26,28 @@
 
 Official API format: https://docs.utmify.com.br/envio-de-vendas
 Official pixel guidance: https://utmify.gitbook.io/central-de-ajuda/pixel-utmify/configurando-o-pixel-utmify
+
+## Duplicação e origem: controles locais
+
+- Um pedido gerado e confirmado conserva exatamente o mesmo `orderId` na UTMify.
+  O servidor evita reenviar `orderId + status` em chamadas simultâneas ou repetidas
+  no **mesmo processo** (limite de memória e expiração de 24 h); entrega falha
+  continua apta a novas tentativas. Ambientes serverless com múltiplos processos
+  requerem deduplicação na plataforma por `orderId` ou persistência durável.
+- O botão Pix ignora envios simultâneos na mesma instância do checkout.
+  `dataLayer.purchase` agora é registrado apenas uma vez por referência mesmo
+  após recarregar, e usa `event_id: <orderId>`, correspondente ao
+  `eventID` enviado pelo Pixel Meta do próprio site.
+- A captura da origem combina UTMs e identificadores preservados no
+  `tracking_params_v1` (30 dias), a API `TrackingParams`, e a URL corrente.
+  A URL corrente prevalece quando um mesmo parâmetro aparece em mais de uma
+  fonte. Somente os sete campos documentados são enviados como
+  `trackingParameters` à UTMify; demais identificadores permitidos permanecem
+  no envelope do pedido e `dataLayer`. Tráfego orgânico legitimamente sem
+  UTMs permanece sem atribuição paga.
+- **Integrações externas:** se o gateway PinguPag também estiver conectado
+  diretamente à mesma conta UTMify, desligue uma das duas fontes de criação de
+  pedidos. A desduplicação dentro deste site não controla envios de terceiros.
+  Se a Meta receber Purchase via GTM, pixel Utmify e Pixel deste site,
+  configure o mesmo `event_id` entre Browser e CAPI, ou mantenha um único
+  emissor por evento. O código não pode corrigir regras externas da conta.

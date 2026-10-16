@@ -39,9 +39,26 @@ describe("Meta funnel event safety", () => {
       "track",
       "Purchase",
       { value: 22.86, currency: "BRL", order_id: "order-a", payment_method: "pix" },
-      { eventID: "Purchase:order-a" },
+      { eventID: "order-a" },
     ]);
   });
+  it("deduplicates the dataLayer purchase across a navigation/reload", async () => {
+    const dataLayer: Record<string, unknown>[] = [];
+    vi.stubGlobal("dataLayer", dataLayer);
+    vi.stubGlobal("fbq", vi.fn());
+    const first = await import("../lib/meta-events");
+    first.trackPurchase("QUIZ-reload-check", 1437, [["utm_source", "facebook"]]);
+    vi.resetModules();
+    const second = await import("../lib/meta-events");
+    second.trackPurchase("QUIZ-reload-check", 1437, [["utm_source", "facebook"]]);
+    expect(dataLayer).toHaveLength(1);
+    expect(dataLayer[0]).toMatchObject({
+      event: "purchase",
+      event_id: "QUIZ-reload-check",
+      transaction_id: "QUIZ-reload-check",
+    });
+  });
+
   it("queues verified purchase with campaign parameters for Tag Manager even without Meta Pixel", async () => {
     const dataLayer: Record<string, unknown>[] = [];
     vi.stubGlobal("dataLayer", dataLayer);

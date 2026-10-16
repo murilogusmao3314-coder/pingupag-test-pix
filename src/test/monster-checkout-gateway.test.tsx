@@ -12,7 +12,12 @@ beforeEach(() => {
   createPayment.mockReset();
   Object.defineProperty(HTMLElement.prototype, "scrollTo", { configurable: true, value: vi.fn() });
 });
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  window.localStorage.clear();
+  window.history.replaceState({}, "", "/");
+  vi.unstubAllGlobals();
+});
 
 function fill(label: string, value: string) {
   fireEvent.change(screen.getByLabelText(label), { target: { value } });
@@ -58,6 +63,35 @@ describe("Checkout gateway contract", () => {
     await waitFor(() =>
       expect(screen.getByRole("status")).toHaveTextContent("Aguardando pagamento"),
     );
+  });
+
+  it("forwards tracked campaign parameters into the actual checkout Pix request", async () => {
+    vi.stubGlobal("TrackingParams", { getParameters: () => new URLSearchParams("utm_source=stale") });
+    window.history.replaceState({}, "", "/?utm_source=facebook&utm_campaign=campaign123&utm_content=videoA&fbclid=click42");
+    createPayment.mockResolvedValue({ ok: true, qr_code: "tracking-test-pix", qr_code_base64: "" });
+    reachPayment();
+    fireEvent.click(screen.getByRole("button", { name: "Gerar PIX de R$ 14,37" }));
+    await waitFor(() => expect(createPayment).toHaveBeenCalledOnce());
+    const request = createPayment.mock.calls[0]?.[0]?.data;
+    expect(request.trackingParameters).toMatchObject({
+      utm_source: "facebook",
+      utm_campaign: "campaign123",
+      utm_content: "videoA",
+    });
+    expect(request.parameters).toContainEqual(["fbclid", "click42"]);
+  });
+
+  it("does not submit a second Pix while the original request is in flight", async () => {
+    let finish!: (value: unknown) => void;
+    createPayment.mockImplementation(() => new Promise((resolve) => { finish = resolve; }));
+    reachPayment();
+    const generate = screen.getByRole("button", { name: "Gerar PIX de R$ 14,37" });
+    fireEvent.click(generate);
+    fireEvent.click(generate);
+    expect(createPayment).toHaveBeenCalledOnce();
+    finish({ ok: true, qr_code: "pix-only-once", qr_code_base64: "" });
+    await waitFor(() => expect(screen.getByRole("status")).toHaveTextContent("Aguardando pagamento"));
+    expect(createPayment).toHaveBeenCalledOnce();
   });
 
   it("shows the actionable gateway error without a fake payment success", async () => {

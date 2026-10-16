@@ -27,7 +27,7 @@ export function trackMeta(
   }
   try {
     const args: unknown[] = [options.custom ? "trackCustom" : "track", name, params];
-    if (key) args.push({ eventID: options.persistent ? key : `${pageId}:${key}` });
+    if (key) args.push({ eventID: options.persistent && name === "Purchase" ? options.key : options.persistent ? key : `${pageId}:${key}` });
     fbq(...args);
     if (key) sent.add(key);
     if (key && options.persistent) {
@@ -104,17 +104,24 @@ function attributionSnapshot(orderParameters?: [string, string][]) {
 }
 function trackTagManagerPurchase(reference: string, amount: number, parameters?: [string, string][]) {
   if (sentToTagManager.has(reference)) return;
+  const key = "purchase_datalayer:" + reference;
+  try {
+    if (window.localStorage.getItem(key)) return;
+  } catch { /* In-memory fallback. */ }
   try {
     const win = window as TagWindow;
     if (!Array.isArray(win.dataLayer)) win.dataLayer = [];
     win.dataLayer.push({
       event: "purchase",
+      event_id: reference,
       transaction_id: reference,
       ecommerce: { transaction_id: reference, value: amount / 100, currency: "BRL" },
       payment_method: "pix",
       attribution: attributionSnapshot(parameters),
     });
     sentToTagManager.add(reference);
+    try { window.localStorage.setItem(key, "1"); }
+    catch { /* In-memory fallback. */ }
   } catch {
     // Third-party analytics must never affect payment.
   }

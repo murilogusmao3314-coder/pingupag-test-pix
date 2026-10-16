@@ -1,4 +1,4 @@
-import { useEffect, useId, useState, type FormEvent } from "react";
+import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -38,6 +38,7 @@ export function Checkout({
   const [pack, setPack] = useState(false);
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
+  const pixRequestBusy = useRef(false);
   const [payment, setPayment] = useState<PixPayment | null>(null);
   const cepFeedback = useCepLookup(fields, setFields, step === 2 && !payment);
   const createPayment = useServerFn(createPix);
@@ -104,7 +105,7 @@ export function Checkout({
   }
   async function submit(e: FormEvent) {
     e.preventDefault();
-    if (pending) return;
+    if (pending || pixRequestBusy.current || payment) return;
     setError("");
     const customer = customerSchema.safeParse(fields);
     if (!customer.success) {
@@ -135,6 +136,7 @@ export function Checkout({
       { key: checkoutId },
     );
     trackMeta("PixRequested", orderMeta(total, cup, pack), { custom: true });
+    pixRequestBusy.current = true;
     setPending(true);
     try {
       const result = await createPayment({
@@ -175,6 +177,7 @@ export function Checkout({
       trackMeta("CheckoutError", { stage: "pix_generation" }, { custom: true });
       setError("Não foi possível gerar o PIX. Tente novamente em instantes.");
     } finally {
+      pixRequestBusy.current = false;
       setPending(false);
     }
   }

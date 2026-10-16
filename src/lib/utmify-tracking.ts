@@ -29,14 +29,36 @@ export function getCheckoutAttribution(): {
     utmifyKeys.map((key) => [key, null]),
   ) as UtmifyTracking;
   if (typeof window === "undefined") return { trackingParameters, parameters: [] };
-  let params: URLSearchParams;
+  // Restore the first captured click even when the deferred tracking script has
+  // not initialized yet. Current URL values take precedence over cached ones.
+  const params = new URLSearchParams();
   try {
-    params =
-      (window as TrackingWindow).TrackingParams?.getParameters() ??
-      new URLSearchParams(window.location.search);
-  } catch {
-    params = new URLSearchParams(window.location.search);
+    const raw = window.localStorage.getItem("tracking_params_v1");
+    if (raw) {
+      const stored: unknown = JSON.parse(raw);
+      if (stored && typeof stored === "object" && "params" in stored &&
+          "expiresAt" in stored && typeof stored.expiresAt === "number" &&
+          stored.expiresAt > Date.now() && Array.isArray(stored.params)) {
+        for (const pair of stored.params) {
+          if (Array.isArray(pair) && pair.length === 2 &&
+              typeof pair[0] === "string" && typeof pair[1] === "string" &&
+              pair[0].length <= 80 && pair[1].length <= 500)
+            params.append(pair[0], pair[1]);
+        }
+      }
+    }
+  } catch { /* Storage is best-effort. */ }
+  function overlay(source: URLSearchParams) {
+    const names = new Set(source.keys());
+    names.forEach((name) => params.delete(name));
+    source.forEach((value, name) => params.append(name, value));
   }
+  try {
+    const tracking = (window as TrackingWindow).TrackingParams?.getParameters();
+    if (tracking) overlay(tracking);
+  } catch { /* URL fallback below. */ }
+  // The click that opened checkout must not be lost to an older helper snapshot.
+  overlay(new URLSearchParams(window.location.search));
   for (const key of utmifyKeys) {
     const value = params.get(key);
     trackingParameters[key] = value !== null && value.length <= 500 ? value : null;

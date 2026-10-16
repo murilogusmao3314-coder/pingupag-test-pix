@@ -1,7 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { getCheckoutTracking, getCheckoutAttribution } from "../lib/utmify-tracking";
 
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => {
+  vi.unstubAllGlobals();
+  window.localStorage.clear();
+  window.history.replaceState({}, "", "/");
+});
 
 describe("Utmify attribution collection", () => {
   it("forwards the seven documented fields but never sensitive or arbitrary URL values", () => {
@@ -49,6 +53,34 @@ describe("Utmify attribution collection", () => {
     expect(result.parameters.length).toBeLessThanOrEqual(64);
     expect(result.parameters.reduce((total, [key, value]) => total + key.length + value.length, 0))
       .toBeLessThanOrEqual(2600);
+  });
+
+  it("uses current checkout URL values over an older tracking helper snapshot", () => {
+    vi.stubGlobal("TrackingParams", {
+      getParameters: () => new URLSearchParams("utm_source=old&utm_medium=paid&fbclid=stored"),
+    });
+    window.history.replaceState({}, "", "/?utm_source=facebook&utm_campaign=now&utm_content=creative42");
+    const result = getCheckoutAttribution();
+    expect(result.trackingParameters).toMatchObject({
+      utm_source: "facebook", utm_campaign: "now", utm_content: "creative42",
+      utm_medium: "paid",
+    });
+    expect(result.parameters).toContainEqual(["fbclid", "stored"]);
+  });
+
+  it("recovers UTMs from saved click data before the deferred helper loads", () => {
+    vi.stubGlobal("TrackingParams", undefined);
+    window.localStorage.setItem("tracking_params_v1", JSON.stringify({
+      version: 1,
+      expiresAt: Date.now() + 60_000,
+      params: [["utm_source", "facebook"], ["utm_campaign", "launch"],
+        ["utm_content", "ad01"], ["fbclid", "fb-test"]],
+    }));
+    expect(getCheckoutAttribution()).toMatchObject({
+      trackingParameters: { utm_source: "facebook", utm_campaign: "launch",
+        utm_content: "ad01" },
+    });
+    expect(getCheckoutAttribution().parameters).toContainEqual(["fbclid", "fb-test"]);
   });
 
   it("preserves nulls for organic traffic with no parameters", () => {

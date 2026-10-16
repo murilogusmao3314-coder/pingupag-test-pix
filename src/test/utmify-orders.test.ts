@@ -117,6 +117,28 @@ describe("UTMify server orders", () => {
     expect(paid.createdAt).toBe(waiting.createdAt);
     expect(paid.approvedDate).not.toBeNull();
     expect(paid.trackingParameters).toEqual(waiting.trackingParameters);
+    // Multiple status polls for the same gateway order must not resend the sale.
+    await checkPixPayment({ data: { token: generated.tracking_token } });
+    expect(fetchMock.mock.calls.filter((call) =>
+      String(call[0]).includes("api.utmify.com.br"),
+    )).toHaveLength(2);
+  });
+
+  it("retries a failed Utmify delivery instead of marking it sent", async () => {
+    const { sendUtmifyOrder } = await import("../lib/utmify-orders.server");
+    const testReference = "QUIZ-aabbccdd-1234-4234-8234-000000000001";
+    const trackedContext = {
+      createdAt: new Date().toISOString(),
+      customer: { name: customer.name, email: customer.email,
+        phone: customer.phone, document: customer.document },
+      trackingParameters: customer.trackingParameters,
+    };
+    fetchMock
+      .mockResolvedValueOnce(new Response("Error", { status: 500 }))
+      .mockResolvedValueOnce(new Response("{}", { status: 200 }));
+    expect(await sendUtmifyOrder(testReference, 1437, trackedContext, "paid")).toBe(false);
+    expect(await sendUtmifyOrder(testReference, 1437, trackedContext, "paid")).toBe(true);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
   it("never reports a paid order on a pending gateway response", async () => {
