@@ -29,7 +29,7 @@ export async function signPixReceipt(reference: string, amount: number, secret: 
   const receipt = receiptSchema.parse({
     reference,
     amount,
-    expiresAt: Date.now() + 30 * 60 * 1000,
+    expiresAt: Date.now() + 24 * 60 * 60 * 1000,
   });
   const data = encode(encoder.encode(JSON.stringify(receipt)));
   const signature = await crypto.subtle.sign(
