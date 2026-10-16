@@ -131,7 +131,6 @@ function UpsellOne() {
             <p className="mst-sub">Este Pix é separado e não altera o pagamento anterior.</p>
             <Payment
               payment={payment}
-              onBack={() => {}}
               showBack={false}
               onApproved={onUpsellApproved}
               amount={UPSELL_AMOUNT}
