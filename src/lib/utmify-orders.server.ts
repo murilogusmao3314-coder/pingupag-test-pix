@@ -6,6 +6,18 @@ export const utmifyTrackingSchema = z.object(
     Record<(typeof utmifyKeys)[number], z.ZodNullable<z.ZodString>>,
 ).strict();
 
+/** Additional click parameters are kept in the signed order receipt; UTMify's
+ * order API receives only its seven documented tracking fields.
+ */
+export const trackingPairsSchema = z.array(z.tuple([
+  z.string().regex(/^[a-z0-9_.-]{1,80}$/i).refine(
+    (name) => !/email|phone|telefone|celular|cpf|cnpj|document|name|nome|address|endereco|cep|zip|password|senha|secret|token|pix|key|auth|cartao|card|cvv/i.test(name),
+  ),
+  z.string().max(500).refine((value) => !/@/.test(value)),
+])).max(64).refine(
+  (pairs) => pairs.reduce((total, [name, value]) => total + name.length + value.length, 0) <= 2600,
+);
+
 export const utmifyOrderContextSchema = z.object({
   createdAt: z.string().datetime(),
   customer: z.object({
@@ -15,6 +27,7 @@ export const utmifyOrderContextSchema = z.object({
     document: z.string().regex(/^\d{11,14}$/),
   }).strict(),
   trackingParameters: utmifyTrackingSchema,
+  parameters: trackingPairsSchema.optional(),
 }).strict();
 
 export type UtmifyOrderContext = z.infer<typeof utmifyOrderContextSchema>;
