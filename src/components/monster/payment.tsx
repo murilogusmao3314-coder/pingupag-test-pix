@@ -16,13 +16,17 @@ export function Payment({
   onBack,
   summary,
   amount,
+  onApproved,
+  showBack = true,
 }: {
   payment: PixPayment;
   onBack: () => void;
   summary?: ReactNode;
   amount?: number;
+  onApproved?: (reference: string) => void;
+  showBack?: boolean;
 }) {
-  const { status, unavailable } = usePixConfirmation(payment.tracking_token);
+  const { status, unavailable } = usePixConfirmation(payment.tracking_token, onApproved);
   useEffect(() => {
     trackMeta(
       "PixViewed",
@@ -111,9 +115,11 @@ export function Payment({
               ? "Não foi possível consultar a confirmação agora. A geração do código não confirma pagamento; confira o status com o suporte antes de gerar outro Pix."
               : "A geração do código não confirma pagamento. O status é consultado automaticamente enquanto esta página estiver aberta."}
       </p>
-      <Button type="button" variant="ghost" className="mst-back" onClick={onBack}>
-        Voltar para corrigir os dados
-      </Button>
+      {showBack && (
+        <Button type="button" variant="ghost" className="mst-back" onClick={onBack}>
+          Voltar para corrigir os dados
+        </Button>
+      )}
     </>
   );
 }
