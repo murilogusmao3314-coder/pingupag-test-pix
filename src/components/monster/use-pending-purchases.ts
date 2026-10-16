@@ -28,7 +28,7 @@ export function usePendingPurchases(enabled: boolean) {
               continue;
             }
             if (result.reference !== entry.reference) continue;
-            if (result.status === "approved") trackPurchase(result.reference, result.amount);
+            if (result.status === "approved") trackPurchase(result.reference, result.amount, result.attribution);
             if (result.status !== "pending") forgetPendingPix(entry.reference);
           } catch {
             // The next visible retry can recover intermittent network failures.
