@@ -5,6 +5,7 @@ import { Quiz } from "@/components/monster/quiz";
 import { Prize, ResultSections } from "@/components/monster/result-sections";
 import { Checkout } from "@/components/monster/checkout";
 import { usePendingPurchases } from "@/components/monster/use-pending-purchases";
+import { rememberUpsellOffer } from "@/components/monster/upsell-session";
 import { assets } from "@/components/monster/assets";
 import { cn } from "@/lib/utils";
 import { trackMeta, orderMeta } from "@/lib/meta-events";
@@ -46,7 +47,12 @@ function MonsterExperience() {
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [selecting, setSelecting] = useState(false);
   const [checkout, setCheckout] = useState(false);
-  usePendingPurchases(!checkout);
+  function showFirstUpsell(token: string, reference: string) {
+    if (rememberUpsellOffer(token, reference)) {
+      window.location.assign("/upsell1");
+    }
+  }
+  usePendingPurchases(!checkout, showFirstUpsell);
   const [deadline, setDeadline] = useState<number | null>(null);
   const [remaining, setRemaining] = useState(600);
   const [analysis, setAnalysis] = useState(0);
@@ -263,7 +269,13 @@ function MonsterExperience() {
       </section>
       {screen === "result" && <ResultSections onRedeem={redeem} />}
       <div hidden={!checkout}>
-        {checkout && <Checkout remaining={remaining} onClose={() => setCheckout(false)} />}
+        {checkout && (
+          <Checkout
+            remaining={remaining}
+            onClose={() => setCheckout(false)}
+            onFirstPaymentApproved={showFirstUpsell}
+          />
+        )}
       </div>
     </main>
   );
