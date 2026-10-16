@@ -46,7 +46,9 @@ export function usePixConfirmation(token?: string, onApproved?: (reference: stri
             finished = true;
             if (result.status === "approved") {
               trackPurchase(result.reference, result.amount, result.attribution);
-              approvedHandler.current?.(result.reference);
+              if (result.kind === "upsell" || result.upsellEligible) {
+                approvedHandler.current?.(result.reference);
+              }
             }
             else
               trackMeta(
