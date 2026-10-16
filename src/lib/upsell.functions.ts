@@ -72,23 +72,36 @@ export const createUpsellPix = createServerFn({ method: "POST" })
       const body: unknown = await response.json().catch(() => null);
       const failure = gatewayHttpFailure(response, body);
       if (failure) return { ok: false as const, error: failure.error };
-      const payload = (body && typeof body === "object" ? body : {}) as Record<string, any>;
-      const qrCode = [
-        payload.qr_code,
-        payload.qrCode,
-        payload.pix?.copyPaste,
-        payload.pix?.qr_code,
-        payload.data?.qr_code,
-        payload.data?.pix?.copyPaste,
-        payload.data?.pix?.qr_code,
-      ].find((value): value is string => typeof value === "string" && value.length > 0);
-      const qrImage = [
-        payload.qr_code_base64,
-        payload.qrCodeBase64,
-        payload.pix?.qrCodeImage,
-        payload.data?.qr_code_base64,
-        payload.data?.pix?.qrCodeImage,
-      ].find((value): value is string => typeof value === "string" && value.length > 0) ?? "";
+      const getString = (data: unknown, ...paths: string[][]) => {
+        for (const path of paths) {
+          let current: unknown = data;
+          for (const part of path) {
+            current = current && typeof current === "object" && part in current
+              ? (current as Record<string, unknown>)[part]
+              : undefined;
+          }
+          if (typeof current === "string" && current.length > 0) return current;
+        }
+        return "";
+      };
+      const qrCode = getString(
+        body,
+        ["qr_code"],
+        ["qrCode"],
+        ["pix", "copyPaste"],
+        ["pix", "qr_code"],
+        ["data", "qr_code"],
+        ["data", "pix", "copyPaste"],
+        ["data", "pix", "qr_code"],
+      );
+      const qrImage = getString(
+        body,
+        ["qr_code_base64"],
+        ["qrCodeBase64"],
+        ["pix", "qrCodeImage"],
+        ["data", "qr_code_base64"],
+        ["data", "pix", "qrCodeImage"],
+      );
       if (!qrCode) return {
         ok: false as const,
         error: "O gateway não retornou um código Pix válido. Consulte a cobrança antes de tentar novamente.",
