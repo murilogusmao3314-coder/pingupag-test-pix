@@ -216,6 +216,7 @@ export const checkPixPayment = createServerFn({ method: "POST" })
         reference: receipt.reference,
         amount: receipt.amount,
         ...(receipt.kind ? { kind: receipt.kind } : {}),
+        ...(status === "approved" && !receipt.kind && context?.address ? { upsellEligible: true } : {}),
         ...(status === "approved" && context?.parameters?.length
           ? { attribution: context.parameters }
           : {}),
