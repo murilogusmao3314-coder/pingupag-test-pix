@@ -146,7 +146,18 @@ function UpsellOne() {
             <h1>4 PULSEIRAS <span>+ FONES SEM FIO</span></h1>
             <p className="mst-upsell-sub">Kit com visual inspirado na Monster: quatro pulseiras e fones Bluetooth com estojo temático.</p>
             <div className="mst-upsell-image">
-              <img src="/upsell-kit.webp" alt="Quatro pulseiras temáticas verdes, pretas e brancas ao lado de fones sem fio brancos com estojo preto e verde" width={360} height={360} decoding="async" />
+              <picture>
+                <source type="image/avif" srcSet="/upsell-kit-hq.avif" />
+                <img
+                  src="/upsell-kit-hq.webp"
+                  alt="Quatro pulseiras temáticas verdes, pretas e brancas ao lado de fones sem fio brancos com estojo preto e verde"
+                  width={900}
+                  height={900}
+                  loading="eager"
+                  decoding="async"
+                  fetchPriority="high"
+                />
+              </picture>
               <span className="mst-upsell-photo-tag">KIT COM 5 ITENS</span>
             </div>
             <div className="mst-upsell-details">
