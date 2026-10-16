@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowRight, Check, Clock3, PackageCheck, ShieldCheck, Truck, Headset, LockKeyhole } from "lucide-react";
+import { ArrowRight, Check, Clock3, PackageCheck, ShieldCheck, Truck } from "lucide-react";
 import { Payment, type PixPayment } from "@/components/monster/payment";
 import { rememberPendingPix } from "@/components/monster/pix-pending";
 import { readUpsellOffer, readUpsellPayment, rememberUpsellPayment, forgetUpsellPayment, dismissUpsellOffer, type UpsellOffer } from "@/components/monster/upsell-session";
@@ -104,7 +104,7 @@ function PriorityUpsell() {
         <div className="pru-topline"><Check size={17} aria-hidden="true" /> Seu pedido original já foi aprovado. O rastreio independe desta oferta.</div>
         {payment ? (
           <div className="pru-payment">
-            <div className="pru-symbol"><LockKeyhole size={29} aria-hidden="true" /></div>
+            <div className="pru-payment-art"><img src="/images/upsell-priority-box.avif" width={92} height={92} alt="Caixa de envio com identidade verde e preta" /></div>
             <span className="pru-eyebrow">SERVIÇO ADICIONAL · PIX SEPARADO</span>
             <h1>Confirme sua <em>prioridade.</em></h1>
             <p className="pru-lead">Este Pix de {money(UPSELL_AMOUNT)} é exclusivamente pelo serviço opcional. Seu pedido e código de rastreio original permanecem iguais.</p>
@@ -114,16 +114,20 @@ function PriorityUpsell() {
           </div>
         ) : (
           <>
-            <div className="pru-symbol"><PackageCheck size={32} strokeWidth={1.9} aria-hidden="true" /></div>
+            <div className="pru-visual" aria-label="Apresentação do serviço de prioridade">
+              <div className="pru-visual-orbit" aria-hidden="true"><span>PRIORIDADE</span><span>EXPEDIÇÃO</span></div>
+              <img className="pru-package" src="/images/upsell-priority-box.avif" width={192} height={192} alt="Caixa kraft personalizada com detalhes pretos e verde neon" decoding="async" fetchPriority="high" />
+              <span className="pru-visual-caption">PREPARAÇÃO COM CUIDADO EXTRA</span>
+            </div>
             <span className="pru-eyebrow">ATENDIMENTO + EXPEDIÇÃO PRIORITÁRIOS</span>
             <h1>Seu pedido confirmado. <em>Quer prioridade?</em></h1>
             <p className="pru-lead">Adicione um cuidado extra à preparação e ao atendimento do seu pedido. Uma única contratação opcional de <strong>{money(UPSELL_AMOUNT)}</strong>.</p>
 
             <div className="pru-benefits" aria-label="Benefícios do serviço">
-              <div><span><PackageCheck size={20} /></span><p><strong>Separação prioritária</strong><small>Seu pedido ganha prioridade na fila interna de preparação.</small></p></div>
-              <div><span><Truck size={20} /></span><p><strong>Encaminhamento prioritário</strong><small>Tratamento prioritário pela loja, sujeito à operação de envio.</small></p></div>
-              <div><span><ShieldCheck size={20} /></span><p><strong>Garantia estendida a 90 dias</strong><small>Mais cobertura sobre os produtos elegíveis do pedido.</small></p></div>
-              <div><span><Headset size={20} /></span><p><strong>Suporte em até 2 horas</strong><small>Prioridade na primeira resposta durante o horário de atendimento.</small></p></div>
+              <div className="pru-benefit"><span className="pru-benefit-mark"><PackageCheck size={22} strokeWidth={1.7} /></span><p><strong>Separação prioritária</strong><small>Seu pedido ganha prioridade na fila interna de preparação.</small></p><b className="pru-benefit-id">01</b></div>
+              <div className="pru-benefit"><span className="pru-benefit-mark pru-benefit-freight"><Truck size={22} strokeWidth={1.7} /></span><p><strong>Encaminhamento prioritário</strong><small>Tratamento prioritário pela loja, sujeito à operação de envio.</small></p><b className="pru-benefit-id">02</b></div>
+              <div className="pru-benefit pru-benefit-warranty"><img className="pru-guarantee" src="/images/upsell-warranty-90d.avif" width={92} height={92} alt="Selo dourado de garantia de 90 dias" decoding="async" /><p><strong>Garantia estendida a 90 dias</strong><small>Mais cobertura sobre os produtos elegíveis do pedido.</small></p></div>
+              <div className="pru-benefit"><span className="pru-benefit-mark pru-benefit-time" aria-label="Duas horas">2<small>H</small></span><p><strong>Suporte em até 2 horas</strong><small>Prioridade na primeira resposta durante o horário de atendimento.</small></p><b className="pru-benefit-id">04</b></div>
             </div>
 
             <div className="pru-price-card">
