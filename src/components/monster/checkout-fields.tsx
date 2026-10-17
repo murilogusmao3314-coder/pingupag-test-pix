@@ -110,7 +110,7 @@ export function AddressFields({
         <Field
           {...props}
           field="cep"
-          label="CEP"
+          label="CEP (opcional)"
           inputMode="numeric"
           placeholder="00000-000"
           autoComplete="postal-code"

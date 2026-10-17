@@ -29,7 +29,7 @@ function reachPayment() {
   fill("CPF", "000.000.000-00");
   fill("Celular", "(11) 99999-9999");
   fireEvent.click(screen.getByRole("button", { name: "Continuar" }));
-  fill("CEP", "01001-000");
+  fill("CEP (opcional)", "01001-000");
   fill("Número", "100");
   fill("Endereço", "Rua Teste");
   fill("Bairro", "Centro");
@@ -63,6 +63,31 @@ describe("Checkout gateway contract", () => {
     await waitFor(() =>
       expect(screen.getByRole("status")).toHaveTextContent("Aguardando pagamento"),
     );
+  });
+
+  it("continues to payment with a manual address and no CEP, preserving Pix data", async () => {
+    createPayment.mockResolvedValue({ ok: true, qr_code: "manual-pix-code", qr_code_base64: "" });
+    render(<Checkout onClose={vi.fn()} />);
+    fill("Nome completo", "Cliente Teste");
+    fill("E-mail", "test@example.invalid");
+    fill("CPF", "000.000.000-00");
+    fill("Celular", "(11) 99999-9999");
+    fireEvent.click(screen.getByRole("button", { name: "Continuar" }));
+    expect(screen.getByLabelText("CEP (opcional)")).toHaveValue("");
+    fill("Número", "100");
+    fill("Endereço", "Rua Manual");
+    fill("Bairro", "Centro");
+    fill("Cidade", "São Paulo");
+    fill("UF", "sp");
+    fireEvent.click(screen.getByRole("button", { name: "Continuar" }));
+    expect(screen.getByRole("button", { name: "Gerar PIX de R$ 14,37" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Gerar PIX de R$ 14,37" }));
+    await waitFor(() => expect(createPayment).toHaveBeenCalledOnce());
+    const address = createPayment.mock.calls[0]?.[0]?.data.address;
+    expect(address).toMatchObject({
+      street: "Rua Manual", number: "100", neighborhood: "Centro", city: "São Paulo", state: "SP",
+    });
+    expect(address).not.toHaveProperty("zipcode");
   });
 
   it("forwards tracked campaign parameters into the actual checkout Pix request", async () => {

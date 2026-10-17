@@ -55,11 +55,11 @@ describe("CEP autofill", () => {
   it("waits for eight digits, masks the CEP and fills only the four address fields", async () => {
     request.mockResolvedValue(new Response(JSON.stringify(address)));
     render(<Harness />);
-    fill("CEP", "01001");
+    fill("CEP (opcional)", "01001");
     await advance();
     expect(request).not.toHaveBeenCalled();
-    fill("CEP", "01001000");
-    expect(screen.getByLabelText("CEP")).toHaveValue("01001-000");
+    fill("CEP (opcional)", "01001000");
+    expect(screen.getByLabelText("CEP (opcional)")).toHaveValue("01001-000");
     expect(screen.getByRole("status")).toHaveTextContent("Buscando endereço");
     await advance();
     expect(request).toHaveBeenCalledOnce();
@@ -84,7 +84,7 @@ describe("CEP autofill", () => {
       }),
     );
     render(<Harness />);
-    fill("CEP", "01001-000");
+    fill("CEP (opcional)", "01001-000");
     fill("Endereço", "Minha rua corrigida");
     await advance();
     fill("Bairro", "Meu bairro corrigido");
@@ -120,10 +120,10 @@ describe("CEP autofill", () => {
         ),
       );
     render(<Harness />);
-    fill("CEP", "01001000");
+    fill("CEP (opcional)", "01001000");
     await advance();
     const firstSignal = request.mock.calls[0]?.[1].signal as AbortSignal;
-    fill("CEP", "20040020");
+    fill("CEP (opcional)", "20040020");
     await advance();
     expect(firstSignal.aborted).toBe(true);
     await act(async () => {
@@ -138,12 +138,12 @@ describe("CEP autofill", () => {
       .mockReturnValueOnce(new Promise<Response>(() => {}))
       .mockResolvedValueOnce(new Response(JSON.stringify(address)));
     render(<Harness />);
-    fill("CEP", "01001000");
+    fill("CEP (opcional)", "01001000");
     await advance();
-    fill("CEP", "20040020");
+    fill("CEP (opcional)", "20040020");
     await advance();
     expect(screen.getByLabelText("Endereço")).toHaveValue("");
-    fill("CEP", "01001000");
+    fill("CEP (opcional)", "01001000");
     await advance();
     expect(screen.getByLabelText("Endereço")).toHaveValue("Praça da Sé");
     expect(request).toHaveBeenCalledTimes(3);
@@ -155,9 +155,9 @@ describe("CEP autofill", () => {
         new Response(JSON.stringify({ ...address, cep: "12345-000", logradouro: "", bairro: "" })),
       );
     render(<Harness />);
-    fill("CEP", "01001000");
+    fill("CEP (opcional)", "01001000");
     await advance();
-    fill("CEP", "12345000");
+    fill("CEP (opcional)", "12345000");
     await advance();
     expect(screen.getByLabelText("Endereço")).toHaveValue("");
     expect(screen.getByLabelText("Bairro")).toHaveValue("");
@@ -171,7 +171,7 @@ describe("CEP autofill", () => {
         .mockResolvedValueOnce(new Response(JSON.stringify({ erro })))
         .mockResolvedValueOnce(new Response(JSON.stringify(address)));
       render(<Harness />);
-      fill("CEP", "01001000");
+      fill("CEP (opcional)", "01001000");
       await advance();
       expect(screen.getByRole("status")).toHaveTextContent("CEP não encontrado");
       fill("Endereço", "Endereço manual");
@@ -191,7 +191,7 @@ describe("CEP autofill", () => {
         }),
     );
     const view = render(<Harness />);
-    fill("CEP", "01001000");
+    fill("CEP (opcional)", "01001000");
     await advance();
     await advance(8000);
     expect(screen.getByRole("status")).toHaveTextContent("Preencha o endereço manualmente");

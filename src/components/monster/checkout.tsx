@@ -151,7 +151,7 @@ export function Checkout({
             neighborhood: address.data.neighborhood,
             city: address.data.city,
             state: address.data.state,
-            zipcode: address.data.cep,
+            ...(address.data.cep ? { zipcode: address.data.cep } : {}),
           },
           description: `Copo Monster 1,15L — envio ${shipping.toUpperCase()}${cup ? " +1 copo" : ""}${pack ? " + fardo 6x473ml" : ""}`,
         },

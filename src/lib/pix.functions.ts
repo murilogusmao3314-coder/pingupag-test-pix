@@ -35,7 +35,7 @@ const schema = z.object({
       neighborhood: z.string().trim().min(1).max(100),
       city: z.string().trim().min(1).max(100),
       state: z.string().regex(/^[A-Z]{2}$/),
-      zipcode: z.string().regex(/^\d{8}$/),
+      zipcode: z.string().regex(/^\d{8}$/).optional(),
     })
     .optional(),
 });

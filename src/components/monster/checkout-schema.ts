@@ -7,7 +7,7 @@ export const customerSchema = z.object({
  phone: z.string().transform(digits).refine(v => /^\d{10,11}$/.test(v),"Digite um celular com DDD."),
 });
 export const addressSchema = z.object({
- cep:z.string().transform(digits).refine(v => /^\d{8}$/.test(v),"Digite um CEP válido."),
+ cep:z.string().transform(digits).refine(v => v === "" || /^\d{8}$/.test(v),"Digite um CEP válido."),
  street:z.string().trim().min(1,"Digite o endereço.").max(150),
  number:z.string().trim().min(1,"Digite o número.").max(20),
  complement:z.string().trim().max(100),

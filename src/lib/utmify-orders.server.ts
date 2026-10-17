@@ -35,7 +35,7 @@ export const utmifyOrderContextSchema = z.object({
     neighborhood: z.string().min(1).max(100),
     city: z.string().min(1).max(100),
     state: z.string().regex(/^[A-Z]{2}$/),
-    zipcode: z.string().regex(/^\d{8}$/),
+    zipcode: z.string().regex(/^\d{8}$/).optional(),
   }).strict().optional(),
 }).strict();
 
